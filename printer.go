@@ -92,3 +92,17 @@ func (p *AstPrinter) visitCallExpr(expr *CallExpr) Any {
 
 	return fmt.Sprintf("CallExpr(%s)", strings.Join(arguments, ", "))
 }
+
+func (p *AstPrinter) visitFunctionStmt(stmt *FunctionStmt) Any {
+	params := make([]string, len(stmt.params))
+	for index, param := range stmt.params {
+		params[index] = param.toString()
+	}
+
+	body := make([]string, len(stmt.body))
+	for index, element := range stmt.body {
+		body[index] = p.printStmt(element)
+	}
+
+	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", stmt.name.lexme, strings.Join(params, ", "), strings.Join(body, "; "))
+}

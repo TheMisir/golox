@@ -288,3 +288,31 @@ func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
 		return nil
 	}
 }
+
+type LoxFunction struct {
+	declaration *FunctionStmt
+}
+
+func MakeLoxFunction(declaration *FunctionStmt) *LoxFunction {
+	return &LoxFunction{declaration: declaration}
+}
+
+func (f *LoxFunction) Arity() int {
+	return len(f.declaration.params)
+}
+
+func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) Any {
+	environment := MakeEnvironment(interpreter.context, interpreter.environment)
+	for index, param := range f.declaration.params {
+		environment.define(param.lexme, arguments[index])
+	}
+
+	interpreter.executeBlock(f.declaration.body, environment)
+	return nil
+}
+
+func (i *Interpreter) visitFunctionStmt(stmt *FunctionStmt) Any {
+	function := MakeLoxFunction(stmt)
+	i.environment.define(stmt.name.lexme, function)
+	return nil
+}

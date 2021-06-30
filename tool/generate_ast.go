@@ -22,6 +22,7 @@ func main() {
 		"PrintStmt":      "expression Expr",
 		"VarStmt":        "name *Token, initializer Expr",
 		"WhileStmt":      "condition Expr, body Stmt",
+		"FunctionStmt":   "name *Token, params []*Token, body []Stmt",
 	}
 
 	defs := "package main\n\n"

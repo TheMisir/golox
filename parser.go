@@ -225,11 +225,11 @@ func (p *Parser) primary() Expr {
 	panic(p.error(p.peek(), "Expected expression."))
 }
 
-func (p *Parser) consume(tokenType TokenType, message string) *Token {
+func (p *Parser) consume(tokenType TokenType, message string, a ...interface{}) *Token {
 	if p.check(tokenType) {
 		return p.advance()
 	}
-	panic(p.error(p.peek(), message))
+	panic(p.error(p.peek(), fmt.Sprintf(message, a...)))
 }
 
 func (p *Parser) error(token *Token, message string) error {
@@ -274,6 +274,8 @@ func (p *Parser) declaration() (result Stmt) {
 	if tryCatch(func() {
 		if p.match(VAR) {
 			result = p.varDeclaration()
+		} else if p.match(FUN) {
+			result = p.function("function")
 		} else {
 			result = p.statement()
 		}
@@ -282,6 +284,32 @@ func (p *Parser) declaration() (result Stmt) {
 		result = nil
 	}
 	return
+}
+
+func (p *Parser) function(kind string) Stmt {
+	identifier := p.consume(IDENTIFIER, "Expect %s name.", kind)
+	p.consume(LEFT_PAREN, "Expect '(' after %s name.", kind)
+	parameters := make([]*Token, 0)
+
+	if !p.check(RIGHT_PAREN) {
+		for {
+			if len(parameters) >= 255 {
+				p.error(p.peek(), "Can't have more than 255 parameters.")
+			}
+
+			parameters = append(parameters, p.consume(IDENTIFIER, "Expect parameter name."))
+
+			if !p.match(COMMA) {
+				break
+			}
+		}
+	}
+
+	p.consume(RIGHT_PAREN, "Expect ')' after parameters.")
+
+	p.consume(LEFT_BRACE, "Expect '{' before %s body.", kind)
+	body := p.block()
+	return MakeFunctionStmt(identifier, parameters, body)
 }
 
 func (p *Parser) varDeclaration() Stmt {

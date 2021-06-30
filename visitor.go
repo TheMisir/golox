@@ -28,4 +28,5 @@ type StmtVisitor interface {
 	visitBlockStmt(stmt *BlockStmt) Any
 	visitIfStmt(stmt *IfStmt) Any
 	visitWhileStmt(stmt *WhileStmt) Any
+	visitFunctionStmt(stmt *FunctionStmt) Any
 }
