@@ -291,10 +291,11 @@ func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
 
 type LoxFunction struct {
 	declaration *FunctionStmt
+	closure     *Environment
 }
 
-func MakeLoxFunction(declaration *FunctionStmt) *LoxFunction {
-	return &LoxFunction{declaration: declaration}
+func MakeLoxFunction(declaration *FunctionStmt, closure *Environment) *LoxFunction {
+	return &LoxFunction{declaration: declaration, closure: closure}
 }
 
 func (f *LoxFunction) Arity() int {
@@ -302,7 +303,7 @@ func (f *LoxFunction) Arity() int {
 }
 
 func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result Any) {
-	environment := MakeEnvironment(interpreter.context, interpreter.globals)
+	environment := MakeEnvironment(interpreter.context, f.closure)
 	for index, param := range f.declaration.params {
 		environment.define(param.lexme, arguments[index])
 	}
@@ -324,7 +325,7 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result An
 }
 
 func (i *Interpreter) visitFunctionStmt(stmt *FunctionStmt) Any {
-	function := MakeLoxFunction(stmt)
+	function := MakeLoxFunction(stmt, i.environment)
 	i.environment.define(stmt.name.lexme, function)
 	return nil
 }
