@@ -323,7 +323,7 @@ func (s *Scanner) number() {
 	}
 
 	seq := s.source[s.start:s.current]
-	value, err := strconv.Parsefloat(seq, 64)
+	value, err := strconv.ParseFloat(seq, 64)
 	if err != nil {
 		s.context.error(s.line, "Failed to convert '%s' sequence to number.", seq)
 	} else {
