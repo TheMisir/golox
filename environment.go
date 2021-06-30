@@ -1,13 +1,16 @@
 package main
 
 type Environment struct {
-	context *LoxContext
-	values  map[string]Any
+	context   *LoxContext
+	values    map[string]Any
+	enclosing *Environment
 }
 
-func MakeEnvironment(context *LoxContext) *Environment {
+func MakeEnvironment(context *LoxContext, enclosing *Environment) *Environment {
 	return &Environment{
-		values: make(map[string]Any, 0),
+		context:   context,
+		values:    make(map[string]Any, 0),
+		enclosing: enclosing,
 	}
 }
 
@@ -20,7 +23,12 @@ func (e *Environment) get(name *Token) Any {
 		return val
 	}
 
-	panic(MakeRuntimeError(name, "Undefined variable '%s'.", name.lexme))
+	if e.enclosing != nil {
+		return e.enclosing.get(name)
+	}
+
+	e.context.runtimeError(name, "Undefined variable '%s'.", name.lexme)
+	return nil // will not be executed
 }
 
 func (e *Environment) assign(name *Token, value Any) {
@@ -29,5 +37,10 @@ func (e *Environment) assign(name *Token, value Any) {
 		return
 	}
 
-	panic(MakeRuntimeError(name, "Undefined variable '%s'.", name.lexme))
+	if e.enclosing != nil {
+		e.enclosing.assign(name, value)
+		return
+	}
+
+	e.context.runtimeError(name, "Undefined variable '%s'.", name.lexme)
 }

@@ -19,17 +19,17 @@ func (c *LoxContext) error(line int, message string, a ...interface{}) {
 	c.report(line, "", message, a...)
 }
 
-func (c *LoxContext) tokenError(token *Token, message string) {
+func (c *LoxContext) tokenError(token *Token, message string, a ...interface{}) {
 	if token.tokenType == EOF {
-		c.report(token.line, " at end", message)
+		c.report(token.line, " at end", message, a...)
 	} else {
-		c.report(token.line, fmt.Sprintf(" at '%s'", token.lexme), message)
+		c.report(token.line, fmt.Sprintf(" at '%s'", token.lexme), message, a...)
 	}
 }
 
-func (c *LoxContext) runtimeError(token *Token, message string) {
-	c.tokenError(token, message)
-	panic(MakeRuntimeError(token, message))
+func (c *LoxContext) runtimeError(token *Token, message string, a ...interface{}) {
+	c.tokenError(token, message, a...)
+	panic(MakeRuntimeError(token, message, a...))
 }
 
 func (c *LoxContext) report(line int, where string, message string, a ...interface{}) {

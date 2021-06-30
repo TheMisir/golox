@@ -23,4 +23,5 @@ type StmtVisitor interface {
 	visitExpressionStmt(stmt *ExpressionStmt) Any
 	visitPrintStmt(stmt *PrintStmt) Any
 	visitVarStmt(stmt *VarStmt) Any
+	visitBlockStmt(stmt *BlockStmt) Any
 }

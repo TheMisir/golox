@@ -51,3 +51,14 @@ func (p *AstPrinter) visitVarStmt(stmt *VarStmt) Any {
 func (p *AstPrinter) visitAssignExpr(expr *AssignExpr) Any {
 	return fmt.Sprintf("AssignExpr(%s %s)", expr.name.lexme, p.printExpr(expr.value))
 }
+
+func (p *AstPrinter) visitBlockStmt(stmt *BlockStmt) Any {
+	result := "BlockStmt{"
+	for index, statement := range stmt.statements {
+		if index > 0 {
+			result += " "
+		}
+		result += p.printStmt(statement)
+	}
+	return result + "}"
+}

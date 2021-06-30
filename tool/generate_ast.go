@@ -14,6 +14,7 @@ func main() {
 		"LiteralExpr":    "value interface{}",
 		"UnaryExpr":      "operator *Token, right Expr",
 		"VariableExpr":   "name *Token",
+		"BlockStmt":      "statements []Stmt",
 		"ExpressionStmt": "expression Expr",
 		"PrintStmt":      "expression Expr",
 		"VarStmt":        "name *Token, initializer Expr",

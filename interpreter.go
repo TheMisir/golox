@@ -13,7 +13,7 @@ type Interpreter struct {
 func MakeInterpreter(context *LoxContext) *Interpreter {
 	return &Interpreter{
 		context:     context,
-		environment: MakeEnvironment(context),
+		environment: MakeEnvironment(context, nil),
 	}
 }
 
@@ -184,4 +184,21 @@ func (i *Interpreter) visitVarStmt(stmt *VarStmt) Any {
 
 	i.environment.define(stmt.name.lexme, value)
 	return nil
+}
+
+func (i *Interpreter) visitBlockStmt(stmt *BlockStmt) Any {
+	i.executeBlock(stmt.statements, MakeEnvironment(i.context, i.environment))
+	return nil
+}
+
+func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) {
+	previous := i.environment
+	defer func() {
+		i.environment = previous
+	}()
+	i.environment = environment
+
+	for _, statement := range statements {
+		i.execute(statement)
+	}
 }
