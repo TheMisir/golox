@@ -2,12 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
-
-var ctx = MakeContext()
-var interpreter = MakeInterpreter(ctx)
 
 func runFromFile(name string) {
 	data, err := ioutil.ReadFile(name)
@@ -16,38 +14,60 @@ func runFromFile(name string) {
 	}
 
 	source := string(data)
-	run(source, true)
+	run(source)
 }
 
 func runFromStdin() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
+	ctx := MakeContext()
+	interpreter := MakeInterpreter(ctx)
+
+	stdin := bufio.NewScanner(os.Stdin)
+	for stdin.Scan() {
 		ctx.hadError = false
-		run(scanner.Text(), true)
+		line := stdin.Text()
+
+		scanner := MakeScanner(ctx, line)
+		tokens := scanner.scanTokens()
+		if ctx.hadError {
+			continue
+		}
+
+		parser := MakeParser(ctx, tokens)
+		statements, _ := parser.parse()
+		if ctx.hadError {
+			continue
+		}
+
+		if len(statements) == 1 {
+			switch val := statements[0].(type) {
+			case *ExpressionStmt:
+				result := interpreter.evaulate(val.expression)
+				fmt.Fprintf(os.Stdout, "%v\n", result)
+				break
+			default:
+				interpreter.interpret(statements)
+				break
+			}
+		}
 	}
 }
 
-func run(source string, continueOnError bool) {
+func run(source string) {
+	ctx := MakeContext()
+
 	scanner := MakeScanner(ctx, source)
 	scanner.scanTokens()
 	if ctx.hadError {
-		if continueOnError {
-			return
-		} else {
-			os.Exit(65)
-		}
+		os.Exit(65)
 	}
 
 	parser := MakeParser(ctx, scanner.tokens)
 	statements, _ := parser.parse()
 	if ctx.hadError {
-		if continueOnError {
-			return
-		} else {
-			os.Exit(65)
-		}
+		os.Exit(65)
 	}
 
+	interpreter := MakeInterpreter(ctx)
 	interpreter.interpret(statements)
 }
 
