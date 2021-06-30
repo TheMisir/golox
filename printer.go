@@ -8,16 +8,20 @@ func MakeAstPrinter() *AstPrinter {
 	return &AstPrinter{}
 }
 
-func (p *AstPrinter) print(expr Expr) string {
+func (p *AstPrinter) printExpr(expr Expr) string {
 	return expr.accept(p).(string)
 }
 
+func (p *AstPrinter) printStmt(stmt Stmt) string {
+	return stmt.accept(p).(string)
+}
+
 func (p *AstPrinter) visitBinaryExpr(expr *BinaryExpr) Any {
-	return fmt.Sprintf("BinaryExpr(%s %s %s)", p.print(expr.left), expr.operator.tokenType, p.print(expr.right))
+	return fmt.Sprintf("BinaryExpr(%s %s %s)", p.printExpr(expr.left), expr.operator.tokenType, p.printExpr(expr.right))
 }
 
 func (p *AstPrinter) visitGroupingExpr(expr *GroupingExpr) Any {
-	return fmt.Sprintf("GroupingExpr(%s)", p.print(expr.expression))
+	return fmt.Sprintf("GroupingExpr(%s)", p.printExpr(expr.expression))
 }
 
 func (p *AstPrinter) visitLiteralExpr(expr *LiteralExpr) Any {
@@ -25,13 +29,13 @@ func (p *AstPrinter) visitLiteralExpr(expr *LiteralExpr) Any {
 }
 
 func (p *AstPrinter) visitUnaryExpr(expr *UnaryExpr) Any {
-	return fmt.Sprintf("UnaryExpr(%s %s)", expr.operator.tokenType, p.print(expr.right))
+	return fmt.Sprintf("UnaryExpr(%s %s)", expr.operator.tokenType, p.printExpr(expr.right))
 }
 
 func (p *AstPrinter) visitPrintStmt(stmt *PrintStmt) Any {
-	return fmt.Sprintf("PrintStmt(%s)")
+	return fmt.Sprintf("PrintStmt(%s);", p.printExpr(stmt.expression))
 }
 
 func (p *AstPrinter) visitExpressionStmt(stmt *ExpressionStmt) Any {
-	return stmt.accept(p)
+	return fmt.Sprintf("ExpressionStmt(%s);", p.printExpr(stmt.expression))
 }
