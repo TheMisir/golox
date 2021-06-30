@@ -20,42 +20,49 @@ func (i *Interpereter) visitBinaryExpr(expr *BinaryExpr) Any {
 
 	switch expr.operator.tokenType {
 	case MINUS:
-		return left.(float64) - right.(float64)
+		return left.(float) - right.(float)
 
 	case SLASH:
-		return left.(float64) / right.(float64)
+		return left.(float) / right.(float)
 
 	case STAR:
-		return left.(float64) * right.(float64)
+		return left.(float) * right.(float)
 
 	case PLUS:
 		switch leftVal := left.(type) {
-		case float64:
+		case float:
 			switch rightVal := right.(type) {
-			case float64:
+			case float:
 				return leftVal + rightVal
+			case bool:
+				if rightVal {
+					return leftVal + 1
+				} else {
+					return leftVal
+				}
 			}
 		case string:
 			switch rightVal := right.(type) {
 			case string:
 				return leftVal + rightVal
-			case float64:
+			case float:
+			case bool:
 				return fmt.Sprintf("%s%v", leftVal, rightVal)
 			}
 		}
 		break
 
 	case GREATER:
-		return left.(float64) > right.(float64)
+		return left.(float) > right.(float)
 
 	case GREATER_EQUAL:
-		return left.(float64) >= right.(float64)
+		return left.(float) >= right.(float)
 
 	case LESS:
-		return left.(float64) < right.(float64)
+		return left.(float) < right.(float)
 
 	case LESS_EQUAL:
-		return left.(float64) <= right.(float64)
+		return left.(float) <= right.(float)
 
 	case EQUAL_EQUAL:
 		return isEqual(left, right)
@@ -80,7 +87,7 @@ func (i *Interpereter) visitUnaryExpr(expr *UnaryExpr) Any {
 
 	switch expr.operator.tokenType {
 	case MINUS:
-		return -right.(float64)
+		return -right.(float)
 	case BANG:
 		return !isTruthy(right)
 	}

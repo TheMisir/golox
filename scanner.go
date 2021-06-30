@@ -87,7 +87,7 @@ func (t *Token) toString() string {
 	switch value := t.literal.(type) {
 	case string:
 		return fmt.Sprintf("%s %s %s at %v", t.tokenType, t.lexme, value, t.line)
-	case float64:
+	case float:
 		return fmt.Sprintf("%s %s %v at %v", t.tokenType, t.lexme, value, t.line)
 	default:
 		return fmt.Sprintf("%s %s at %v", t.tokenType, t.lexme, t.line)
@@ -323,7 +323,7 @@ func (s *Scanner) number() {
 	}
 
 	seq := s.source[s.start:s.current]
-	value, err := strconv.ParseFloat(seq, 64)
+	value, err := strconv.Parsefloat(seq, 64)
 	if err != nil {
 		s.context.error(s.line, "Failed to convert '%s' sequence to number.", seq)
 	} else {

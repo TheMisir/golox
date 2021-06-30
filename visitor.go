@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 type Any = interface{}
+type float = float64
 
 type ExprVisitor interface {
 	visitBinaryExpr(expr *BinaryExpr) Any
