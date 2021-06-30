@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type AstPrinter struct{}
 
@@ -77,4 +80,15 @@ func (p *AstPrinter) visitLogicalExpr(expr *LogicalExpr) Any {
 
 func (p *AstPrinter) visitWhileStmt(stmt *WhileStmt) Any {
 	return fmt.Sprintf("WhileStmt(%s {%s})", p.printExpr(stmt.condition), p.printStmt(stmt.body))
+}
+
+func (p *AstPrinter) visitCallExpr(expr *CallExpr) Any {
+	arguments := make([]string, len(expr.arguments)+1)
+	arguments[0] = p.printExpr(expr.callee)
+
+	for index, arg := range expr.arguments {
+		arguments[index+1] = p.printExpr(arg)
+	}
+
+	return fmt.Sprintf("CallExpr(%s)", strings.Join(arguments, ", "))
 }

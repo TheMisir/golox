@@ -14,6 +14,7 @@ type ExprVisitor interface {
 	visitVariableExpr(expr *VariableExpr) Any
 	visitAssignExpr(expr *AssignExpr) Any
 	visitLogicalExpr(expr *LogicalExpr) Any
+	visitCallExpr(expr *CallExpr) Any
 }
 
 type Stmt interface {

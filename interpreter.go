@@ -3,17 +3,26 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 type Interpreter struct {
 	context     *LoxContext
 	environment *Environment
+	globals     *Environment
 }
 
 func MakeInterpreter(context *LoxContext) *Interpreter {
+	globals := MakeEnvironment(context, nil)
+
+	globals.define("clock", MakeLoxCallable(0, func(interpreter *Interpreter, arguments []Any) Any {
+		return time.Now().UnixNano() / 1000000
+	}))
+
 	return &Interpreter{
 		context:     context,
-		environment: MakeEnvironment(context, nil),
+		environment: globals,
+		globals:     globals,
 	}
 }
 
@@ -233,4 +242,49 @@ func (i *Interpreter) visitWhileStmt(stmt *WhileStmt) Any {
 		i.execute(stmt.body)
 	}
 	return nil
+}
+
+type LoxCallable interface {
+	Call(interpreter *Interpreter, arguments []Any) Any
+	Arity() int
+}
+
+type LoxCallableHandler = func(interpreter *Interpreter, arguments []Any) Any
+
+type LoxStaticCallable struct {
+	arity   int
+	handler LoxCallableHandler
+}
+
+func (c *LoxStaticCallable) Call(interpreter *Interpreter, arguments []Any) Any {
+	return c.handler(interpreter, arguments)
+}
+
+func (c *LoxStaticCallable) Arity() int {
+	return c.arity
+}
+
+func MakeLoxCallable(arity int, handler LoxCallableHandler) *LoxStaticCallable {
+	return &LoxStaticCallable{arity: arity, handler: handler}
+}
+
+func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
+	callee := i.evaluate(expr.callee)
+
+	switch val := callee.(type) {
+	case LoxCallable:
+		if val.Arity() != len(expr.arguments) {
+			i.context.runtimeError(expr.paren, "Expected %v arguments byt got %v.", val.Arity(), len(expr.arguments))
+		}
+
+		arguments := make([]Any, len(expr.arguments))
+		for index, argument := range expr.arguments {
+			arguments[index] = i.evaluate(argument)
+		}
+
+		return val.Call(i, arguments)
+	default:
+		i.context.runtimeError(expr.paren, "Can only call functions and classes.")
+		return nil
+	}
 }

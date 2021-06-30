@@ -1,40 +1,8 @@
 package main
 
-type LiteralExpr struct {
-	value interface{}
-}
-
-type LogicalExpr struct {
-	left     Expr
+type UnaryExpr struct {
 	operator *Token
 	right    Expr
-}
-
-type VariableExpr struct {
-	name *Token
-}
-
-type ExpressionStmt struct {
-	expression Expr
-}
-
-type PrintStmt struct {
-	expression Expr
-}
-
-type WhileStmt struct {
-	condition Expr
-	body      Stmt
-}
-
-type BinaryExpr struct {
-	left     Expr
-	operator *Token
-	right    Expr
-}
-
-type GroupingExpr struct {
-	expression Expr
 }
 
 type BlockStmt struct {
@@ -52,46 +20,56 @@ type VarStmt struct {
 	initializer Expr
 }
 
+type ExpressionStmt struct {
+	expression Expr
+}
+
 type AssignExpr struct {
 	name  *Token
 	value Expr
 }
 
-type UnaryExpr struct {
+type BinaryExpr struct {
+	left     Expr
 	operator *Token
 	right    Expr
 }
 
-func MakeLiteralExpr(value interface{}) *LiteralExpr {
-	return &LiteralExpr{value: value}
+type LiteralExpr struct {
+	value interface{}
 }
 
-func MakeLogicalExpr(left Expr, operator *Token, right Expr) *LogicalExpr {
-	return &LogicalExpr{left: left, operator: operator, right: right}
+type PrintStmt struct {
+	expression Expr
 }
 
-func MakeVariableExpr(name *Token) *VariableExpr {
-	return &VariableExpr{name: name}
+type WhileStmt struct {
+	condition Expr
+	body      Stmt
 }
 
-func MakeExpressionStmt(expression Expr) *ExpressionStmt {
-	return &ExpressionStmt{expression: expression}
+type CallExpr struct {
+	callee    Expr
+	paren     *Token
+	arguments []Expr
 }
 
-func MakePrintStmt(expression Expr) *PrintStmt {
-	return &PrintStmt{expression: expression}
+type GroupingExpr struct {
+	expression Expr
 }
 
-func MakeWhileStmt(condition Expr, body Stmt) *WhileStmt {
-	return &WhileStmt{condition: condition, body: body}
+type LogicalExpr struct {
+	left     Expr
+	operator *Token
+	right    Expr
 }
 
-func MakeBinaryExpr(left Expr, operator *Token, right Expr) *BinaryExpr {
-	return &BinaryExpr{left: left, operator: operator, right: right}
+type VariableExpr struct {
+	name *Token
 }
 
-func MakeGroupingExpr(expression Expr) *GroupingExpr {
-	return &GroupingExpr{expression: expression}
+func MakeUnaryExpr(operator *Token, right Expr) *UnaryExpr {
+	return &UnaryExpr{operator: operator, right: right}
 }
 
 func MakeBlockStmt(statements []Stmt) *BlockStmt {
@@ -106,44 +84,48 @@ func MakeVarStmt(name *Token, initializer Expr) *VarStmt {
 	return &VarStmt{name: name, initializer: initializer}
 }
 
+func MakeExpressionStmt(expression Expr) *ExpressionStmt {
+	return &ExpressionStmt{expression: expression}
+}
+
 func MakeAssignExpr(name *Token, value Expr) *AssignExpr {
 	return &AssignExpr{name: name, value: value}
 }
 
-func MakeUnaryExpr(operator *Token, right Expr) *UnaryExpr {
-	return &UnaryExpr{operator: operator, right: right}
+func MakeBinaryExpr(left Expr, operator *Token, right Expr) *BinaryExpr {
+	return &BinaryExpr{left: left, operator: operator, right: right}
 }
 
-func (expr *LiteralExpr) accept(v ExprVisitor) Any {
-	return v.visitLiteralExpr(expr)
+func MakeLiteralExpr(value interface{}) *LiteralExpr {
+	return &LiteralExpr{value: value}
 }
 
-func (expr *LogicalExpr) accept(v ExprVisitor) Any {
-	return v.visitLogicalExpr(expr)
+func MakePrintStmt(expression Expr) *PrintStmt {
+	return &PrintStmt{expression: expression}
 }
 
-func (expr *VariableExpr) accept(v ExprVisitor) Any {
-	return v.visitVariableExpr(expr)
+func MakeWhileStmt(condition Expr, body Stmt) *WhileStmt {
+	return &WhileStmt{condition: condition, body: body}
 }
 
-func (expr *ExpressionStmt) accept(v StmtVisitor) Any {
-	return v.visitExpressionStmt(expr)
+func MakeCallExpr(callee Expr, paren *Token, arguments []Expr) *CallExpr {
+	return &CallExpr{callee: callee, paren: paren, arguments: arguments}
 }
 
-func (expr *PrintStmt) accept(v StmtVisitor) Any {
-	return v.visitPrintStmt(expr)
+func MakeGroupingExpr(expression Expr) *GroupingExpr {
+	return &GroupingExpr{expression: expression}
 }
 
-func (expr *WhileStmt) accept(v StmtVisitor) Any {
-	return v.visitWhileStmt(expr)
+func MakeLogicalExpr(left Expr, operator *Token, right Expr) *LogicalExpr {
+	return &LogicalExpr{left: left, operator: operator, right: right}
 }
 
-func (expr *BinaryExpr) accept(v ExprVisitor) Any {
-	return v.visitBinaryExpr(expr)
+func MakeVariableExpr(name *Token) *VariableExpr {
+	return &VariableExpr{name: name}
 }
 
-func (expr *GroupingExpr) accept(v ExprVisitor) Any {
-	return v.visitGroupingExpr(expr)
+func (expr *UnaryExpr) accept(v ExprVisitor) Any {
+	return v.visitUnaryExpr(expr)
 }
 
 func (expr *BlockStmt) accept(v StmtVisitor) Any {
@@ -158,10 +140,42 @@ func (expr *VarStmt) accept(v StmtVisitor) Any {
 	return v.visitVarStmt(expr)
 }
 
+func (expr *ExpressionStmt) accept(v StmtVisitor) Any {
+	return v.visitExpressionStmt(expr)
+}
+
 func (expr *AssignExpr) accept(v ExprVisitor) Any {
 	return v.visitAssignExpr(expr)
 }
 
-func (expr *UnaryExpr) accept(v ExprVisitor) Any {
-	return v.visitUnaryExpr(expr)
+func (expr *BinaryExpr) accept(v ExprVisitor) Any {
+	return v.visitBinaryExpr(expr)
+}
+
+func (expr *LiteralExpr) accept(v ExprVisitor) Any {
+	return v.visitLiteralExpr(expr)
+}
+
+func (expr *PrintStmt) accept(v StmtVisitor) Any {
+	return v.visitPrintStmt(expr)
+}
+
+func (expr *WhileStmt) accept(v StmtVisitor) Any {
+	return v.visitWhileStmt(expr)
+}
+
+func (expr *CallExpr) accept(v ExprVisitor) Any {
+	return v.visitCallExpr(expr)
+}
+
+func (expr *GroupingExpr) accept(v ExprVisitor) Any {
+	return v.visitGroupingExpr(expr)
+}
+
+func (expr *LogicalExpr) accept(v ExprVisitor) Any {
+	return v.visitLogicalExpr(expr)
+}
+
+func (expr *VariableExpr) accept(v ExprVisitor) Any {
+	return v.visitVariableExpr(expr)
 }

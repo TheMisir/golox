@@ -10,6 +10,7 @@ func main() {
 	types := map[string]string{
 		"AssignExpr":     "name *Token, value Expr",
 		"BinaryExpr":     "left Expr, operator *Token, right Expr",
+		"CallExpr":       "callee Expr, paren *Token, arguments []Expr",
 		"GroupingExpr":   "expression Expr",
 		"LiteralExpr":    "value interface{}",
 		"LogicalExpr":    "left Expr, operator *Token, right Expr",

@@ -150,7 +150,7 @@ func (p *Parser) factor() Expr {
 	return expr
 }
 
-// ( "!" | "-" ) unary | primary ;
+// ( "!" | "-" ) unary | call ;
 func (p *Parser) unary() Expr {
 	if p.match(BANG, MINUS) {
 		operator := p.previous()
@@ -162,7 +162,42 @@ func (p *Parser) unary() Expr {
 		return MakeVariableExpr(p.previous())
 	}
 
-	return p.primary()
+	return p.call()
+}
+
+// primary ( "(" arguments? ")" )* ;
+func (p *Parser) call() Expr {
+	expr := p.primary()
+
+	for {
+		if p.match(LEFT_PAREN) {
+			expr = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
+
+	return expr
+}
+
+func (p *Parser) finishCall(callee Expr) Expr {
+	arguments := make([]Expr, 0)
+
+	if !p.check(RIGHT_PAREN) {
+		for {
+			if len(arguments) >= 255 {
+				p.error(p.peek(), "Can't have more than 255 arguments.")
+			}
+			arguments = append(arguments, p.expression())
+			if !p.match(COMMA) {
+				break
+			}
+		}
+	}
+
+	paren := p.consume(RIGHT_PAREN, "Expect ')' after arguments.")
+
+	return MakeCallExpr(callee, paren, arguments)
 }
 
 // NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
