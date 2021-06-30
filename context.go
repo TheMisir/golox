@@ -6,17 +6,17 @@ import (
 )
 
 type LoxContext struct {
-	hasError bool
+	hadError bool
 }
 
 func MakeContext() *LoxContext {
 	return &LoxContext{
-		hasError: false,
+		hadError: false,
 	}
 }
 
 func (c *LoxContext) error(line int, message string, a ...interface{}) {
-	c.report(line, "", message)
+	c.report(line, "", message, a...)
 }
 
 func (c *LoxContext) tokenError(token *Token, message string) {
@@ -28,7 +28,7 @@ func (c *LoxContext) tokenError(token *Token, message string) {
 }
 
 func (c *LoxContext) report(line int, where string, message string, a ...interface{}) {
-	c.hasError = true
+	c.hadError = true
 	message = fmt.Sprintf(message, a...)
 	fmt.Fprintf(os.Stderr, "[line %v] Error%s: %s\n", line, where, message)
 }

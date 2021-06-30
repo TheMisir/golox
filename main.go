@@ -31,14 +31,23 @@ func run(source string) {
 	scanner.scanTokens()
 
 	parser := MakeParser(ctx, scanner.tokens)
-	expression, err := parser.parse()
-
-	if err != nil {
-		return
+	if ctx.hadError {
+		os.Exit(65)
 	}
 
-	println(MakeAstPrinter().print(expression))
-	fmt.Printf("%v\n", MakeInterpereter().evaulate(expression))
+	expression, err := parser.parse()
+	if err != nil {
+		os.Exit(65)
+	}
+
+	printer := MakeAstPrinter()
+	interpereter := MakeInterpereter()
+
+	print("AST: ")
+	println(printer.print(expression))
+
+	print("<<<: ")
+	fmt.Printf("%v\n", interpereter.evaulate(expression))
 }
 
 func main() {
