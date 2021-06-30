@@ -211,3 +211,19 @@ func (i *Interpreter) visitIfStmt(stmt *IfStmt) Any {
 	}
 	return nil
 }
+
+func (i *Interpreter) visitLogicalExpr(expr *LogicalExpr) Any {
+	left := i.evaluate(expr.left)
+
+	if expr.operator.tokenType == OR {
+		if isTruthy(left) {
+			return left
+		}
+	} else {
+		if !isTruthy(left) {
+			return left
+		}
+	}
+
+	return i.evaluate(expr.right)
+}

@@ -12,6 +12,7 @@ func main() {
 		"BinaryExpr":     "left Expr, operator *Token, right Expr",
 		"GroupingExpr":   "expression Expr",
 		"LiteralExpr":    "value interface{}",
+		"LogicalExpr":    "left Expr, operator *Token, right Expr",
 		"UnaryExpr":      "operator *Token, right Expr",
 		"VariableExpr":   "name *Token",
 		"BlockStmt":      "statements []Stmt",

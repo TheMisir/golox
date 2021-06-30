@@ -70,3 +70,7 @@ func (p *AstPrinter) visitIfStmt(stmt *IfStmt) Any {
 
 	return fmt.Sprintf("IfStmt(%s {%s} else {%s})", p.printExpr(stmt.condition), p.printStmt(stmt.thenBranch), p.printStmt(stmt.elseBranch))
 }
+
+func (p *AstPrinter) visitLogicalExpr(expr *LogicalExpr) Any {
+	return fmt.Sprintf("LogicalExpr(%s %s %s)", p.printExpr(expr.left), expr.operator.tokenType, p.printExpr(expr.right))
+}

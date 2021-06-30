@@ -13,6 +13,7 @@ type ExprVisitor interface {
 	visitUnaryExpr(expr *UnaryExpr) Any
 	visitVariableExpr(expr *VariableExpr) Any
 	visitAssignExpr(expr *AssignExpr) Any
+	visitLogicalExpr(expr *LogicalExpr) Any
 }
 
 type Stmt interface {
