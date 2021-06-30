@@ -278,7 +278,58 @@ func (p *Parser) statement() Stmt {
 		return p.whileStatement()
 	}
 
+	if p.match(FOR) {
+		return p.forStatement()
+	}
+
 	return p.expressionStatement()
+}
+
+// "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;
+func (p *Parser) forStatement() Stmt {
+	p.consume(LEFT_PAREN, "Expect '(' after 'for'.")
+
+	var initializer Stmt
+	if p.match(SEMICOLON) {
+		initializer = nil
+	} else if p.match(VAR) {
+		initializer = p.varDeclaration()
+	} else {
+		initializer = p.expressionStatement()
+	}
+
+	var condition Expr = nil
+	if !p.check(SEMICOLON) {
+		condition = p.expression()
+	}
+	p.consume(SEMICOLON, "Expect ';' after loop condition.")
+
+	var increment Expr = nil
+	if !p.check(SEMICOLON) {
+		increment = p.expression()
+	}
+	p.consume(RIGHT_PAREN, "Expect ')' after for clauses.")
+
+	body := p.statement()
+
+	if increment != nil {
+		body = MakeBlockStmt([]Stmt{
+			body,
+			MakeExpressionStmt(increment),
+		})
+	}
+
+	if condition == nil {
+		condition = MakeLiteralExpr(true)
+	}
+
+	body = MakeWhileStmt(condition, body)
+
+	if initializer != nil {
+		body = MakeBlockStmt([]Stmt{initializer, body})
+	}
+
+	return body
 }
 
 // "while" "(" expression ")" statement ;
