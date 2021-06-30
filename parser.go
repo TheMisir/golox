@@ -274,7 +274,21 @@ func (p *Parser) statement() Stmt {
 		return p.ifStatement()
 	}
 
+	if p.match(WHILE) {
+		return p.whileStatement()
+	}
+
 	return p.expressionStatement()
+}
+
+// "while" "(" expression ")" statement ;
+func (p *Parser) whileStatement() Stmt {
+	p.consume(LEFT_PAREN, "Expect '(' after 'while'.")
+	condition := p.expression()
+	p.consume(RIGHT_PAREN, "Expect ')' after condition.")
+	body := p.statement()
+
+	return MakeWhileStmt(condition, body)
 }
 
 // "if" "(" expression ")" statement ( "else" statement )? ;

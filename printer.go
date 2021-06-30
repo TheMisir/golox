@@ -74,3 +74,7 @@ func (p *AstPrinter) visitIfStmt(stmt *IfStmt) Any {
 func (p *AstPrinter) visitLogicalExpr(expr *LogicalExpr) Any {
 	return fmt.Sprintf("LogicalExpr(%s %s %s)", p.printExpr(expr.left), expr.operator.tokenType, p.printExpr(expr.right))
 }
+
+func (p *AstPrinter) visitWhileStmt(stmt *WhileStmt) Any {
+	return fmt.Sprintf("WhileStmt(%s {%s})", p.printExpr(stmt.condition), p.printStmt(stmt.body))
+}
