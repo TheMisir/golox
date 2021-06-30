@@ -57,7 +57,27 @@ func (p *Parser) previous() *Token {
 
 // equality ;
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+//IDENTIFIER "=" assignment | equality ;
+func (p *Parser) assignment() Expr {
+	expr := p.equality()
+
+	if p.match(EQUAL) {
+		equals := p.previous()
+		value := p.assignment()
+
+		switch val := expr.(type) {
+		case *VariableExpr:
+			name := val.name
+			return MakeAssignExpr(name, value)
+		}
+
+		p.error(equals, "Invalid assignment target.")
+	}
+
+	return expr
 }
 
 // comparison ( ( "!=" | "==" ) comparison )* ;

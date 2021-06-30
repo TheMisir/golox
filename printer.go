@@ -47,3 +47,7 @@ func (p *AstPrinter) visitExpressionStmt(stmt *ExpressionStmt) Any {
 func (p *AstPrinter) visitVarStmt(stmt *VarStmt) Any {
 	return fmt.Sprintf("VarStmt(%s %s)", stmt.name.lexme, p.printExpr(stmt.initializer))
 }
+
+func (p *AstPrinter) visitAssignExpr(expr *AssignExpr) Any {
+	return fmt.Sprintf("AssignExpr(%s %s)", expr.name.lexme, p.printExpr(expr.value))
+}

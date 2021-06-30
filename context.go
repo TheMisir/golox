@@ -27,8 +27,29 @@ func (c *LoxContext) tokenError(token *Token, message string) {
 	}
 }
 
+func (c *LoxContext) runtimeError(token *Token, message string) {
+	c.tokenError(token, message)
+	panic(MakeRuntimeError(token, message))
+}
+
 func (c *LoxContext) report(line int, where string, message string, a ...interface{}) {
 	c.hadError = true
 	message = fmt.Sprintf(message, a...)
 	fmt.Fprintf(os.Stderr, "[line %v] Error%s: %s\n", line, where, message)
+}
+
+type RuntimeError struct {
+	token   *Token
+	message string
+}
+
+func MakeRuntimeError(token *Token, message string, a ...interface{}) RuntimeError {
+	return RuntimeError{token: token, message: fmt.Sprintf(message, a...)}
+}
+
+func (e RuntimeError) Error() string {
+	if e.token == nil {
+		return "Runtime error: " + e.message
+	}
+	return fmt.Sprintf("Runtime error at line %v: %s", e.token.line, e.message)
 }

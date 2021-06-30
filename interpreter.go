@@ -6,33 +6,15 @@ import (
 )
 
 type Interpreter struct {
+	context     *LoxContext
 	environment *Environment
 }
 
-func MakeInterpreter() *Interpreter {
+func MakeInterpreter(context *LoxContext) *Interpreter {
 	return &Interpreter{
-		environment: MakeEnvironment(),
+		context:     context,
+		environment: MakeEnvironment(context),
 	}
-}
-
-type RuntimeError struct {
-	token   *Token
-	message string
-}
-
-func MakeRuntimeError(token *Token, message string, a ...interface{}) RuntimeError {
-	return RuntimeError{token: token, message: fmt.Sprintf(message, a...)}
-}
-
-func (e RuntimeError) Error() string {
-	if e.token == nil {
-		return "Runtime error: " + e.message
-	}
-	return fmt.Sprintf("Runtime error at line %v: %s", e.token.line, e.message)
-}
-
-func (i *Interpreter) runtimeError(token *Token, message string) {
-	panic(MakeRuntimeError(token, message))
 }
 
 func (i *Interpreter) evaulate(expr Expr) Any {
@@ -83,7 +65,7 @@ func (i *Interpreter) visitBinaryExpr(expr *BinaryExpr) Any {
 				return fmt.Sprintf("%s%v", leftVal, rightVal)
 			}
 		}
-		i.runtimeError(expr.operator, "Operands must be two numbers or two strings.")
+		i.context.runtimeError(expr.operator, "Operands must be two numbers or two strings.")
 		break
 
 	case GREATER:
@@ -134,6 +116,12 @@ func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
 	return nil
 }
 
+func (i *Interpreter) visitAssignExpr(expr *AssignExpr) Any {
+	value := i.evaulate(expr.value)
+	i.environment.assign(expr.name, value)
+	return value
+}
+
 func (i *Interpreter) visitVariableExpr(expr *VariableExpr) Any {
 	return i.environment.get(expr.name)
 }
@@ -163,7 +151,7 @@ func (i *Interpreter) checkNumberOperand(operator *Token, operand Any) {
 	case float:
 		return
 	}
-	i.runtimeError(operator, "Operand must be a number.")
+	i.context.runtimeError(operator, "Operand must be a number.")
 }
 
 func (i *Interpreter) checkNumberOperands(operator *Token, left Any, right Any) {
@@ -174,7 +162,7 @@ func (i *Interpreter) checkNumberOperands(operator *Token, left Any, right Any) 
 			return
 		}
 	}
-	i.runtimeError(operator, "Operands must be a numbers.")
+	i.context.runtimeError(operator, "Operands must be a numbers.")
 }
 
 func (i *Interpreter) visitPrintStmt(stmt *PrintStmt) Any {
