@@ -1,9 +1,10 @@
-fun addPair(a, b) {
-  return a + b;
-}
+2+2/2
+// fun addPair(a, b) {
+//   return a + b;
+// }
 
-fun identity(a) {
-  return a;
-}
+// fun identity(a) {
+//   return a;
+// }
 
-print identity(addPair)(1, 2); // Prints "3"
+// print identity(addPair)(1, 2); // Prints "3"

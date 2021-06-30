@@ -17,6 +17,10 @@ type Expr interface {
 
 type AstPrinter struct{}
 
+func MakeAstPrinter() *AstPrinter {
+	return &AstPrinter{}
+}
+
 func (p *AstPrinter) print(expr Expr) string {
 	return expr.accept(p).(string)
 }

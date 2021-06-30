@@ -25,13 +25,17 @@ func runFromStdin() {
 
 func run(source string) {
 	ctx := MakeContext()
-	scanner := MakeScanner(ctx, source)
 
+	scanner := MakeScanner(ctx, source)
 	scanner.scanTokens()
 
-	for _, token := range scanner.tokens {
-		println(token.toString())
+	parser := MakeParser(ctx, scanner.tokens)
+	expression, err := parser.parse()
+
+	if err != nil {
+		return
 	}
+	println(MakeAstPrinter().print(expression))
 }
 
 func main() {
