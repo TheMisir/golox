@@ -37,7 +37,7 @@ func (p *Parser) check(tokenType TokenType) bool {
 }
 
 func (p *Parser) advance() *Token {
-	if p.isAtEnd() {
+	if !p.isAtEnd() {
 		p.current++
 	}
 	return p.previous()
@@ -170,9 +170,9 @@ func (e ParseError) Error() string {
 
 func (p *Parser) parse() (result Expr, err error) {
 	defer func() {
-		// recover from panic if one occured. Set err to nil otherwise.
+		// recover from panic if one occurred. Set err to nil otherwise.
 		if recover() != nil {
-			err = errors.New("Parsing failed")
+			err = errors.New("parsing failed")
 		}
 	}()
 
