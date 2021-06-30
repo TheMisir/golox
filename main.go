@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-var printAst bool = true
-
 func runFromFile(name string) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
@@ -22,7 +20,6 @@ func runFromFile(name string) {
 func runFromStdin() {
 	ctx := MakeContext()
 	interpreter := MakeInterpreter(ctx)
-	printer := MakeAstPrinter()
 
 	stdin := bufio.NewScanner(os.Stdin)
 	for stdin.Scan() {
@@ -39,14 +36,6 @@ func runFromStdin() {
 		statements, _ := parser.parse()
 		if ctx.hadError {
 			continue
-		}
-
-		if printAst {
-			fmt.Fprintf(os.Stdout, "AST:\n")
-			for _, statement := range statements {
-				fmt.Fprintf(os.Stdout, "%s\n", printer.printStmt(statement))
-			}
-			fmt.Fprintf(os.Stdout, "\n\n")
 		}
 
 		if len(statements) == 1 {
@@ -66,7 +55,6 @@ func runFromStdin() {
 func run(source string) {
 	ctx := MakeContext()
 
-	printer := MakeAstPrinter()
 	scanner := MakeScanner(ctx, source)
 	scanner.scanTokens()
 	if ctx.hadError {
@@ -77,14 +65,6 @@ func run(source string) {
 	statements, _ := parser.parse()
 	if ctx.hadError {
 		os.Exit(65)
-	}
-
-	if printAst {
-		fmt.Fprintf(os.Stdout, "AST:\n")
-		for _, statement := range statements {
-			fmt.Fprintf(os.Stdout, "%s\n", printer.printStmt(statement))
-		}
-		fmt.Fprintf(os.Stdout, "\n\n")
 	}
 
 	interpreter := MakeInterpreter(ctx)

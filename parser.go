@@ -158,10 +158,6 @@ func (p *Parser) unary() Expr {
 		return MakeUnaryExpr(operator, right)
 	}
 
-	if p.match(IDENTIFIER) {
-		return MakeVariableExpr(p.previous())
-	}
-
 	return p.call()
 }
 
@@ -220,6 +216,10 @@ func (p *Parser) primary() Expr {
 		expr := p.expression()
 		p.consume(RIGHT_PAREN, "Expect ')' after expression.")
 		return MakeGroupingExpr(expr)
+	}
+
+	if p.match(IDENTIFIER) {
+		return MakeVariableExpr(p.previous())
 	}
 
 	panic(p.error(p.peek(), "Expected expression."))
