@@ -17,7 +17,7 @@ func MakeInterpreter(context *LoxContext) *Interpreter {
 	}
 }
 
-func (i *Interpreter) evaulate(expr Expr) Any {
+func (i *Interpreter) evaluate(expr Expr) Any {
 	return expr.accept(i)
 }
 
@@ -32,8 +32,8 @@ func (i *Interpreter) interpret(statements []Stmt) {
 }
 
 func (i *Interpreter) visitBinaryExpr(expr *BinaryExpr) Any {
-	left := i.evaulate(expr.left)
-	right := i.evaulate(expr.right)
+	left := i.evaluate(expr.left)
+	right := i.evaluate(expr.right)
 
 	switch expr.operator.tokenType {
 	case MINUS:
@@ -95,7 +95,7 @@ func (i *Interpreter) visitBinaryExpr(expr *BinaryExpr) Any {
 }
 
 func (i *Interpreter) visitGroupingExpr(expr *GroupingExpr) Any {
-	return i.evaulate(expr.expression)
+	return i.evaluate(expr.expression)
 }
 
 func (i *Interpreter) visitLiteralExpr(expr *LiteralExpr) Any {
@@ -103,7 +103,7 @@ func (i *Interpreter) visitLiteralExpr(expr *LiteralExpr) Any {
 }
 
 func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
-	right := i.evaulate(expr.right)
+	right := i.evaluate(expr.right)
 
 	switch expr.operator.tokenType {
 	case MINUS:
@@ -117,7 +117,7 @@ func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
 }
 
 func (i *Interpreter) visitAssignExpr(expr *AssignExpr) Any {
-	value := i.evaulate(expr.value)
+	value := i.evaluate(expr.value)
 	i.environment.assign(expr.name, value)
 	return value
 }
@@ -166,20 +166,20 @@ func (i *Interpreter) checkNumberOperands(operator *Token, left Any, right Any) 
 }
 
 func (i *Interpreter) visitPrintStmt(stmt *PrintStmt) Any {
-	value := i.evaulate(stmt.expression)
+	value := i.evaluate(stmt.expression)
 	fmt.Fprintf(os.Stdout, "%v\n", value)
 	return nil
 }
 
 func (i *Interpreter) visitExpressionStmt(stmt *ExpressionStmt) Any {
-	i.evaulate(stmt.expression)
+	i.evaluate(stmt.expression)
 	return nil
 }
 
 func (i *Interpreter) visitVarStmt(stmt *VarStmt) Any {
 	var value Any = nil
 	if stmt.initializer != nil {
-		value = i.evaulate(stmt.initializer)
+		value = i.evaluate(stmt.initializer)
 	}
 
 	i.environment.define(stmt.name.lexme, value)
@@ -201,4 +201,13 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 	for _, statement := range statements {
 		i.execute(statement)
 	}
+}
+
+func (i *Interpreter) visitIfStmt(stmt *IfStmt) Any {
+	if isTruthy(i.evaluate(stmt.condition)) {
+		i.execute(stmt.thenBranch)
+	} else if stmt.elseBranch != nil {
+		i.execute(stmt.elseBranch)
+	}
+	return nil
 }

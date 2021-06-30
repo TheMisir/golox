@@ -244,7 +244,26 @@ func (p *Parser) statement() Stmt {
 		return MakeBlockStmt(p.block())
 	}
 
+	if p.match(IF) {
+		return p.ifStatement()
+	}
+
 	return p.expressionStatement()
+}
+
+// "if" "(" expression ")" statement ( "else" statement )? ;
+func (p *Parser) ifStatement() Stmt {
+	p.consume(LEFT_PAREN, "Expect '(' after 'if'.")
+	condition := p.expression()
+	p.consume(RIGHT_PAREN, "Expect ')' after if condition.")
+
+	thenBranch := p.statement()
+	var elseBranch Stmt = nil
+	if p.match(ELSE) {
+		elseBranch = p.statement()
+	}
+
+	return MakeIfStmt(condition, thenBranch, elseBranch)
 }
 
 func (p *Parser) block() []Stmt {

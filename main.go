@@ -41,7 +41,7 @@ func runFromStdin() {
 		if len(statements) == 1 {
 			switch val := statements[0].(type) {
 			case *ExpressionStmt:
-				result := interpreter.evaulate(val.expression)
+				result := interpreter.evaluate(val.expression)
 				fmt.Fprintf(os.Stdout, "%v\n", result)
 				break
 			default:

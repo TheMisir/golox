@@ -24,4 +24,5 @@ type StmtVisitor interface {
 	visitPrintStmt(stmt *PrintStmt) Any
 	visitVarStmt(stmt *VarStmt) Any
 	visitBlockStmt(stmt *BlockStmt) Any
+	visitIfStmt(stmt *IfStmt) Any
 }

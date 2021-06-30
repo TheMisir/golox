@@ -62,3 +62,11 @@ func (p *AstPrinter) visitBlockStmt(stmt *BlockStmt) Any {
 	}
 	return result + "}"
 }
+
+func (p *AstPrinter) visitIfStmt(stmt *IfStmt) Any {
+	if stmt.elseBranch == nil {
+		return fmt.Sprintf("IfStmt(%s {%s})", p.printExpr(stmt.condition), p.printStmt(stmt.thenBranch))
+	}
+
+	return fmt.Sprintf("IfStmt(%s {%s} else {%s})", p.printExpr(stmt.condition), p.printStmt(stmt.thenBranch), p.printStmt(stmt.elseBranch))
+}
