@@ -159,6 +159,7 @@ func (s *Scanner) scanToken() {
 	case ',':
 		s.addToken(COMMA)
 		break
+
 	case '.':
 		s.addToken(DOT)
 		break
