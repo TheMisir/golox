@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -35,7 +36,9 @@ func run(source string) {
 	if err != nil {
 		return
 	}
+
 	println(MakeAstPrinter().print(expression))
+	fmt.Printf("%v\n", MakeInterpereter().evaulate(expression))
 }
 
 func main() {
