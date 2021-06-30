@@ -5,15 +5,23 @@ import (
 	"os"
 )
 
-type Interpreter struct{}
+type Interpreter struct {
+	environment *Environment
+}
 
 func MakeInterpreter() *Interpreter {
-	return &Interpreter{}
+	return &Interpreter{
+		environment: MakeEnvironment(),
+	}
 }
 
 type RuntimeError struct {
 	token   *Token
 	message string
+}
+
+func MakeRuntimeError(token *Token, message string, a ...interface{}) RuntimeError {
+	return RuntimeError{token: token, message: fmt.Sprintf(message, a...)}
 }
 
 func (e RuntimeError) Error() string {
@@ -24,7 +32,7 @@ func (e RuntimeError) Error() string {
 }
 
 func (i *Interpreter) runtimeError(token *Token, message string) {
-	panic(RuntimeError{token: token, message: message})
+	panic(MakeRuntimeError(token, message))
 }
 
 func (i *Interpreter) evaulate(expr Expr) Any {
@@ -126,6 +134,10 @@ func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
 	return nil
 }
 
+func (i *Interpreter) visitVariableExpr(expr *VariableExpr) Any {
+	return i.environment.get(expr.name)
+}
+
 func isTruthy(value Any) bool {
 	if value == nil {
 		return false
@@ -173,5 +185,15 @@ func (i *Interpreter) visitPrintStmt(stmt *PrintStmt) Any {
 
 func (i *Interpreter) visitExpressionStmt(stmt *ExpressionStmt) Any {
 	i.evaulate(stmt.expression)
+	return nil
+}
+
+func (i *Interpreter) visitVarStmt(stmt *VarStmt) Any {
+	var value Any = nil
+	if stmt.initializer != nil {
+		value = i.evaulate(stmt.initializer)
+	}
+
+	i.environment.define(stmt.name.lexme, value)
 	return nil
 }
