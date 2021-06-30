@@ -1,9 +1,11 @@
 fun makeCounter() {
   var i = 0;
-  return fun () {
+  fun count() {
     i = i + 1;
     print i;
-  };
+  }
+
+  return count;
 }
 
 var counter = makeCounter();
