@@ -12,8 +12,10 @@ func main() {
 		"GroupingExpr":   "expression Expr",
 		"LiteralExpr":    "value interface{}",
 		"UnaryExpr":      "operator *Token, right Expr",
+		"VariableExpr":   "name *Token",
 		"ExpressionStmt": "expression Expr",
 		"PrintStmt":      "expression Expr",
+		"VarStmt":        "name *Token, initializer Expr",
 	}
 
 	defs := "package main\n\n"

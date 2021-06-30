@@ -5,7 +5,8 @@
       "label": "make:generate",
       "type": "process",
       "command": "make",
-      "args": ["generate"]
+      "args": ["generate"],
+      "problemMatcher": "$go"
     }
   ]
 }

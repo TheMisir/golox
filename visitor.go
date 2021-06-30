@@ -11,6 +11,7 @@ type ExprVisitor interface {
 	visitGroupingExpr(expr *GroupingExpr) Any
 	visitLiteralExpr(expr *LiteralExpr) Any
 	visitUnaryExpr(expr *UnaryExpr) Any
+	visitVariableExpr(expr *VariableExpr) Any
 }
 
 type Stmt interface {
@@ -20,4 +21,5 @@ type Stmt interface {
 type StmtVisitor interface {
 	visitExpressionStmt(stmt *ExpressionStmt) Any
 	visitPrintStmt(stmt *PrintStmt) Any
+	visitVarStmt(stmt *VarStmt) Any
 }

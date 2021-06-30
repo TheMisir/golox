@@ -11,6 +11,22 @@ func MakeInterpreter() *Interpreter {
 	return &Interpreter{}
 }
 
+type RuntimeError struct {
+	token   *Token
+	message string
+}
+
+func (e RuntimeError) Error() string {
+	if e.token == nil {
+		return "Runtime error: " + e.message
+	}
+	return fmt.Sprintf("Runtime error at line %v: %s", e.token.line, e.message)
+}
+
+func (i *Interpreter) runtimeError(token *Token, message string) {
+	panic(RuntimeError{token: token, message: message})
+}
+
 func (i *Interpreter) evaulate(expr Expr) Any {
 	return expr.accept(i)
 }
@@ -147,22 +163,6 @@ func (i *Interpreter) checkNumberOperands(operator *Token, left Any, right Any) 
 		}
 	}
 	i.runtimeError(operator, "Operands must be a numbers.")
-}
-
-func (i *Interpreter) runtimeError(token *Token, message string) {
-	panic(RuntimeError{token: token, message: message})
-}
-
-type RuntimeError struct {
-	token   *Token
-	message string
-}
-
-func (e RuntimeError) Error() string {
-	if e.token == nil {
-		return "Runtime error: " + e.message
-	}
-	return fmt.Sprintf("Runtime error at line %v: %s", e.token.line, e.message)
 }
 
 func (i *Interpreter) visitPrintStmt(stmt *PrintStmt) Any {

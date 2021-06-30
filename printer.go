@@ -32,10 +32,18 @@ func (p *AstPrinter) visitUnaryExpr(expr *UnaryExpr) Any {
 	return fmt.Sprintf("UnaryExpr(%s %s)", expr.operator.tokenType, p.printExpr(expr.right))
 }
 
+func (p *AstPrinter) visitVariableExpr(expr *VariableExpr) Any {
+	return fmt.Sprintf("VariableExpr(%s)", expr.name.lexme)
+}
+
 func (p *AstPrinter) visitPrintStmt(stmt *PrintStmt) Any {
 	return fmt.Sprintf("PrintStmt(%s);", p.printExpr(stmt.expression))
 }
 
 func (p *AstPrinter) visitExpressionStmt(stmt *ExpressionStmt) Any {
 	return fmt.Sprintf("ExpressionStmt(%s);", p.printExpr(stmt.expression))
+}
+
+func (p *AstPrinter) visitVarStmt(stmt *VarStmt) Any {
+	return fmt.Sprintf("VarStmt(%s %s)", stmt.name.lexme, p.printExpr(stmt.initializer))
 }

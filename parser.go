@@ -110,9 +110,13 @@ func (p *Parser) unary() Expr {
 		operator := p.previous()
 		right := p.unary()
 		return MakeUnaryExpr(operator, right)
-	} else {
-		return p.primary()
 	}
+
+	if p.match(IDENTIFIER) {
+		return MakeVariableExpr(p.previous())
+	}
+
+	return p.primary()
 }
 
 // NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
@@ -169,29 +173,53 @@ func (e ParseError) Error() string {
 }
 
 func (p *Parser) parse() (result []Stmt, err error) {
-	defer func() {
-		// recover from panic if one occurred. Set err to nil otherwise.
-		if recover() != nil {
-			err = errors.New("parsing failed")
-		}
-	}()
-
-	result = p.program()
+	if tryCatch(func() {
+		result = p.program()
+	}) != nil {
+		err = errors.New("parse error")
+	}
 	return
 }
 
 func (p *Parser) program() []Stmt {
 	statements := make([]Stmt, 0)
 	for !p.isAtEnd() {
-		statements = append(statements, p.statement())
+		statements = append(statements, p.declaration())
 	}
 	return statements
+}
+
+func (p *Parser) declaration() (result Stmt) {
+	if tryCatch(func() {
+		if p.match(VAR) {
+			result = p.varDeclaration()
+		} else {
+			result = p.statement()
+		}
+	}) == catch {
+		p.synchronize()
+		result = nil
+	}
+	return
+}
+
+func (p *Parser) varDeclaration() Stmt {
+	name := p.consume(IDENTIFIER, "Expect variable name.")
+
+	var initializer Expr = nil
+	if p.match(EQUAL) {
+		initializer = p.expression()
+	}
+
+	p.consume(SEMICOLON, "Expect ';' after variable declaration.")
+	return MakeVarStmt(name, initializer)
 }
 
 func (p *Parser) statement() Stmt {
 	if p.match(PRINT) {
 		return p.printStatement()
 	}
+
 	return p.expressionStatement()
 }
 
@@ -205,4 +233,28 @@ func (p *Parser) expressionStatement() Stmt {
 	expr := p.expression()
 	p.consume(SEMICOLON, "Expect ';' after expression.")
 	return MakeExpressionStmt(expr)
+}
+
+func (p *Parser) synchronize() {
+	p.advance()
+
+	for !p.isAtEnd() {
+		if p.previous().tokenType == SEMICOLON {
+			return
+		}
+
+		switch p.peek().tokenType {
+		case CLASS:
+		case FUN:
+		case VAR:
+		case FOR:
+		case IF:
+		case WHILE:
+		case PRINT:
+		case RETURN:
+			return
+		}
+
+		p.advance()
+	}
 }
