@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -29,25 +28,18 @@ func run(source string) {
 
 	scanner := MakeScanner(ctx, source)
 	scanner.scanTokens()
-
-	parser := MakeParser(ctx, scanner.tokens)
 	if ctx.hadError {
 		os.Exit(65)
 	}
 
-	expression, err := parser.parse()
+	parser := MakeParser(ctx, scanner.tokens)
+	statements, err := parser.parse()
 	if err != nil {
 		os.Exit(65)
 	}
 
-	printer := MakeAstPrinter()
 	interpreter := MakeInterpreter()
-
-	print("AST: ")
-	println(printer.print(expression))
-
-	print("<<<: ")
-	fmt.Printf("%v\n", interpreter.evaulate(expression))
+	interpreter.interpret(statements)
 }
 
 func main() {

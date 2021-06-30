@@ -1,5 +1,5 @@
 GO       = go
-AST_FILE = expression.go
+AST_FILE = ast.go
 
 generate:
 	$(GO) run tool/generate_ast.go > $(AST_FILE)

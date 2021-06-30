@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 type Interpreter struct{}
@@ -12,6 +13,16 @@ func MakeInterpreter() *Interpreter {
 
 func (i *Interpreter) evaulate(expr Expr) Any {
 	return expr.accept(i)
+}
+
+func (i *Interpreter) execute(expr Stmt) Any {
+	return expr.accept(i)
+}
+
+func (i *Interpreter) interpret(statements []Stmt) {
+	for _, statement := range statements {
+		i.execute(statement)
+	}
 }
 
 func (i *Interpreter) visitBinaryExpr(expr *BinaryExpr) Any {
@@ -152,4 +163,15 @@ func (e RuntimeError) Error() string {
 		return "Runtime error: " + e.message
 	}
 	return fmt.Sprintf("Runtime error at line %v: %s", e.token.line, e.message)
+}
+
+func (i *Interpreter) visitPrintStmt(stmt *PrintStmt) Any {
+	value := i.evaulate(stmt.expression)
+	fmt.Fprintf(os.Stdout, "%v\n", value)
+	return nil
+}
+
+func (i *Interpreter) visitExpressionStmt(stmt *ExpressionStmt) Any {
+	i.evaulate(stmt.expression)
+	return nil
 }

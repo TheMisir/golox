@@ -3,6 +3,9 @@ package main
 type Any = interface{}
 type float = float64
 
+type Expr interface {
+	accept(v ExprVisitor) Any
+}
 type ExprVisitor interface {
 	visitBinaryExpr(expr *BinaryExpr) Any
 	visitGroupingExpr(expr *GroupingExpr) Any
@@ -10,6 +13,11 @@ type ExprVisitor interface {
 	visitUnaryExpr(expr *UnaryExpr) Any
 }
 
-type Expr interface {
-	accept(v ExprVisitor) Any
+type Stmt interface {
+	accept(v StmtVisitor) Any
+}
+
+type StmtVisitor interface {
+	visitExpressionStmt(stmt *ExpressionStmt) Any
+	visitPrintStmt(stmt *PrintStmt) Any
 }

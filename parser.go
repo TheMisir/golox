@@ -168,7 +168,7 @@ func (e ParseError) Error() string {
 	}
 }
 
-func (p *Parser) parse() (result Expr, err error) {
+func (p *Parser) parse() (result []Stmt, err error) {
 	defer func() {
 		// recover from panic if one occurred. Set err to nil otherwise.
 		if recover() != nil {
@@ -176,6 +176,33 @@ func (p *Parser) parse() (result Expr, err error) {
 		}
 	}()
 
-	result = p.expression()
+	result = p.program()
 	return
+}
+
+func (p *Parser) program() []Stmt {
+	statements := make([]Stmt, 0)
+	for !p.isAtEnd() {
+		statements = append(statements, p.statement())
+	}
+	return statements
+}
+
+func (p *Parser) statement() Stmt {
+	if p.match(PRINT) {
+		return p.printStatement()
+	}
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() Stmt {
+	value := p.expression()
+	p.consume(SEMICOLON, "Expect ';' after value.")
+	return MakePrintStmt(value)
+}
+
+func (p *Parser) expressionStatement() Stmt {
+	expr := p.expression()
+	p.consume(SEMICOLON, "Expect ';' after expression.")
+	return MakeExpressionStmt(expr)
 }

@@ -7,13 +7,18 @@ The [lox language](https://craftinginterpreters.com/the-lox-language.html) inter
 These are notes I took during reading the book that helped me to 
 write the code.
 
-### Expressions
+### Grammar
 
-Here's Lox expression grammar. Those are simple notations that 
+Here's Lox AST node grammar. Those are simple notations that 
 contains everything needed for implementing parser for given 
 statements.
 
 ```plain
+program        → statement* EOF ;
+statement      → exprStmt
+               | printStmt ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
 expression     → equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;

@@ -7,22 +7,22 @@ import (
 )
 
 func main() {
-	types := []string{
-		"BinaryExpr   :   left Expr, operator *Token, right Expr",
-		"GroupingExpr :   expression Expr",
-		"LiteralExpr  :   value interface{}",
-		"UnaryExpr    :   operator *Token, right Expr",
+	types := map[string]string{
+		"BinaryExpr":     "left Expr, operator *Token, right Expr",
+		"GroupingExpr":   "expression Expr",
+		"LiteralExpr":    "value interface{}",
+		"UnaryExpr":      "operator *Token, right Expr",
+		"ExpressionStmt": "expression Expr",
+		"PrintStmt":      "expression Expr",
 	}
 
 	defs := "package main\n\n"
 	impl := ""
 	ctor := ""
 
-	for _, typeInfo := range types {
-
-		parts := strings.Split(typeInfo, ":")
-		name := strings.Trim(parts[0], " ")
-		params := strings.Split(parts[1], ",")
+	for name, params := range types {
+		params := strings.Split(params, ",")
+		typeName := name[len(name)-4:]
 
 		defs += fmt.Sprintf("type %s struct {\n", name)
 		ctor += fmt.Sprintf("func Make%s(", name)
@@ -42,7 +42,7 @@ func main() {
 		}
 		defs += "}\n\n"
 		ctor += fmt.Sprintf(") *%s {\n  return &%s{%s}\n}\n\n", name, name, args)
-		impl += fmt.Sprintf("func (expr *%s) accept(v ExprVisitor) Any {\n  return v.visit%s(expr)\n}\n\n", name, name)
+		impl += fmt.Sprintf("func (expr *%s) accept(v %sVisitor) Any {\n  return v.visit%s(expr)\n}\n\n", name, typeName, name)
 	}
 
 	os.Stdout.WriteString(defs)
