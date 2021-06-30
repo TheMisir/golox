@@ -1,6 +1,17 @@
-# AST
+# GoLox
 
-Here's Lox expression grammar:
+The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpereter written in Golang.
+
+## Notes
+
+These are notes I took during reading the book that helped me to 
+write the code.
+
+### Expressions
+
+Here's Lox expression grammar. Those are simple notations that 
+contains everything needed for implementing parser for given 
+statements.
 
 ```plain
 expression     → equality ;
@@ -16,10 +27,10 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 
 And the body of the rule translates to code roughly like:
 
-| Grammar notation | Code representation               |
-| :--------------- | :-------------------------------- |
-| Terminal         | Code to match and consume a token |
-| Nonterminal      | Call to that rule’s function      |
-| `\|`             | `if` or `switch` statement        |
-| `*` or `+`       | `while` or `for` loop             |
-| `?`              | `if` statement                    |
+| Grammar notation    | Code representation               |
+| :------------------ | :-------------------------------- |
+| Terminal            | Code to match and consume a token |
+| Nonterminal         | Call to that rule’s function      |
+| <code>&#124;</code> | `if` or `switch` statement        |
+| `*` or `+`          | `while` or `for` loop             |
+| `?`                 | `if` statement                    |
