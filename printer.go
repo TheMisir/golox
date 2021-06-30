@@ -106,3 +106,7 @@ func (p *AstPrinter) visitFunctionStmt(stmt *FunctionStmt) Any {
 
 	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", stmt.name.lexme, strings.Join(params, ", "), strings.Join(body, "; "))
 }
+
+func (p *AstPrinter) visitReturnStmt(stmt *ReturnStmt) Any {
+	return fmt.Sprintf("ReturnStmt(%s)", p.printExpr(stmt.value))
+}

@@ -329,6 +329,14 @@ func (p *Parser) statement() Stmt {
 		return p.printStatement()
 	}
 
+	if p.match(RETURN) {
+		return p.returnStatement()
+	}
+
+	if p.match(WHILE) {
+		return p.whileStatement()
+	}
+
 	if p.match(LEFT_BRACE) {
 		return MakeBlockStmt(p.block())
 	}
@@ -337,15 +345,23 @@ func (p *Parser) statement() Stmt {
 		return p.ifStatement()
 	}
 
-	if p.match(WHILE) {
-		return p.whileStatement()
-	}
-
 	if p.match(FOR) {
 		return p.forStatement()
 	}
 
 	return p.expressionStatement()
+}
+
+// "return" expression? ";" ;
+func (p *Parser) returnStatement() Stmt {
+	keyword := p.previous()
+	var value Expr = nil
+	if !p.check(SEMICOLON) {
+		value = p.expression()
+	}
+
+	p.consume(SEMICOLON, "Expect ';' after return value.")
+	return MakeReturnStmt(keyword, value)
 }
 
 // "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement ;

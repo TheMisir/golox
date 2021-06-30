@@ -256,16 +256,16 @@ type LoxStaticCallable struct {
 	handler LoxCallableHandler
 }
 
+func MakeLoxCallable(arity int, handler LoxCallableHandler) *LoxStaticCallable {
+	return &LoxStaticCallable{arity: arity, handler: handler}
+}
+
 func (c *LoxStaticCallable) Call(interpreter *Interpreter, arguments []Any) Any {
 	return c.handler(interpreter, arguments)
 }
 
 func (c *LoxStaticCallable) Arity() int {
 	return c.arity
-}
-
-func MakeLoxCallable(arity int, handler LoxCallableHandler) *LoxStaticCallable {
-	return &LoxStaticCallable{arity: arity, handler: handler}
 }
 
 func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
@@ -301,11 +301,23 @@ func (f *LoxFunction) Arity() int {
 	return len(f.declaration.params)
 }
 
-func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) Any {
-	environment := MakeEnvironment(interpreter.context, interpreter.environment)
+func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result Any) {
+	environment := MakeEnvironment(interpreter.context, interpreter.globals)
 	for index, param := range f.declaration.params {
 		environment.define(param.lexme, arguments[index])
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			switch r := r.(type) {
+			case *Return:
+				result = r.value
+				break
+			default:
+				panic(r)
+			}
+		}
+	}()
 
 	interpreter.executeBlock(f.declaration.body, environment)
 	return nil
@@ -315,4 +327,25 @@ func (i *Interpreter) visitFunctionStmt(stmt *FunctionStmt) Any {
 	function := MakeLoxFunction(stmt)
 	i.environment.define(stmt.name.lexme, function)
 	return nil
+}
+
+type Return struct {
+	value Any
+}
+
+func MakeReturn(value Any) *Return {
+	return &Return{value: value}
+}
+
+func (r *Return) Error() string {
+	return "return statement"
+}
+
+func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
+	var value Any = nil
+	if stmt.value != nil {
+		value = i.evaluate(stmt.value)
+	}
+
+	panic(MakeReturn(value))
 }
