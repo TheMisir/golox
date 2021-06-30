@@ -1,6 +1,6 @@
 # GoLox
 
-The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpereter written in Golang.
+The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpreter written in Golang.
 
 ## Notes
 

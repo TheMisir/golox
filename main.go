@@ -41,13 +41,13 @@ func run(source string) {
 	}
 
 	printer := MakeAstPrinter()
-	interpereter := MakeInterpereter()
+	interpreter := MakeInterpreter()
 
 	print("AST: ")
 	println(printer.print(expression))
 
 	print("<<<: ")
-	fmt.Printf("%v\n", interpereter.evaulate(expression))
+	fmt.Printf("%v\n", interpreter.evaulate(expression))
 }
 
 func main() {

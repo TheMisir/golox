@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-type Interpereter struct{}
+type Interpreter struct{}
 
-func MakeInterpereter() *Interpereter {
-	return &Interpereter{}
+func MakeInterpreter() *Interpreter {
+	return &Interpreter{}
 }
 
-func (i *Interpereter) evaulate(expr Expr) Any {
+func (i *Interpreter) evaulate(expr Expr) Any {
 	return expr.accept(i)
 }
 
-func (i *Interpereter) visitBinaryExpr(expr *BinaryExpr) Any {
+func (i *Interpreter) visitBinaryExpr(expr *BinaryExpr) Any {
 	left := i.evaulate(expr.left)
 	right := i.evaulate(expr.right)
 
@@ -77,15 +77,15 @@ func (i *Interpereter) visitBinaryExpr(expr *BinaryExpr) Any {
 	return nil
 }
 
-func (i *Interpereter) visitGroupingExpr(expr *GroupingExpr) Any {
+func (i *Interpreter) visitGroupingExpr(expr *GroupingExpr) Any {
 	return i.evaulate(expr.expression)
 }
 
-func (i *Interpereter) visitLiteralExpr(expr *LiteralExpr) Any {
+func (i *Interpreter) visitLiteralExpr(expr *LiteralExpr) Any {
 	return expr.value
 }
 
-func (i *Interpereter) visitUnaryExpr(expr *UnaryExpr) Any {
+func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
 	right := i.evaulate(expr.right)
 
 	switch expr.operator.tokenType {
@@ -119,7 +119,7 @@ func isEqual(a Any, b Any) bool {
 	return a == b
 }
 
-func (i *Interpereter) checkNumberOperand(operator *Token, operand Any) {
+func (i *Interpreter) checkNumberOperand(operator *Token, operand Any) {
 	switch operand.(type) {
 	case float:
 		return
@@ -127,7 +127,7 @@ func (i *Interpereter) checkNumberOperand(operator *Token, operand Any) {
 	i.runtimeError(operator, "Operand must be a number.")
 }
 
-func (i *Interpereter) checkNumberOperands(operator *Token, left Any, right Any) {
+func (i *Interpreter) checkNumberOperands(operator *Token, left Any, right Any) {
 	switch left.(type) {
 	case float:
 		switch right.(type) {
@@ -138,7 +138,7 @@ func (i *Interpereter) checkNumberOperands(operator *Token, left Any, right Any)
 	i.runtimeError(operator, "Operands must be a numbers.")
 }
 
-func (i *Interpereter) runtimeError(token *Token, message string) {
+func (i *Interpreter) runtimeError(token *Token, message string) {
 	panic(RuntimeError{token: token, message: message})
 }
 
