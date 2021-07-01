@@ -17,6 +17,7 @@ func main() {
 		"LiteralExpr":  "value interface{}",
 		"LogicalExpr":  "left Expr, operator *Token, right Expr",
 		"SetExpr":      "object Expr, name *Token, value Expr",
+		"ThisExpr":     "keyword *Token",
 		"UnaryExpr":    "operator *Token, right Expr",
 		"VariableExpr": "name *Token",
 

@@ -321,6 +321,12 @@ func MakeLoxFunction(declaration *FunctionStmt, closure *Environment) *LoxFuncti
 	return &LoxFunction{declaration: declaration, closure: closure}
 }
 
+func (f *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
+	environment := MakeEnvironment(f.closure.context, f.closure)
+	environment.define("this", instance)
+	return MakeLoxFunction(f.declaration, environment)
+}
+
 func (f *LoxFunction) Arity() int {
 	return len(f.declaration.params)
 }
@@ -437,7 +443,7 @@ func (i *LoxInstance) get(name *Token) Any {
 	}
 
 	if method := i.klass.findMethod(name.lexme); method != nil {
-		return method
+		return method.bind(i)
 	}
 
 	i.klass.context.runtimeError(name, "Undefined property '%s'.", name.lexme)
@@ -475,4 +481,8 @@ func (i *Interpreter) visitSetExpr(expr *SetExpr) Any {
 
 	i.context.runtimeError(expr.name, "Only instances have fields.")
 	return nil
+}
+
+func (i *Interpreter) visitThisExpr(expr *ThisExpr) Any {
+	return i.lookUpVariable(expr.keyword, expr)
 }

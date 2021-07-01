@@ -125,3 +125,7 @@ func (p *AstPrinter) visitGetExpr(expr *GetExpr) Any {
 func (p *AstPrinter) visitSetExpr(expr *SetExpr) Any {
 	return fmt.Sprintf("SetExpr(%s.%s = %s)", p.printExpr(expr.object), expr.name.lexme, p.printExpr(expr.value))
 }
+
+func (p *AstPrinter) visitThisExpr(expr *ThisExpr) Any {
+	return "ThisExpr"
+}

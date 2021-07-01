@@ -16,6 +16,7 @@ type ExprVisitor interface {
 	visitUnaryExpr(expr *UnaryExpr) Any
 	visitVariableExpr(expr *VariableExpr) Any
 	visitAssignExpr(expr *AssignExpr) Any
+	visitThisExpr(expr *ThisExpr) Any
 	visitLogicalExpr(expr *LogicalExpr) Any
 }
 

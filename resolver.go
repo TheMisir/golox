@@ -200,13 +200,18 @@ func (r *Resolver) visitPrintStmt(stmt *PrintStmt) Any {
 
 func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	r.declare(stmt.name)
+	r.define(stmt.name)
+
+	r.beginScope()
+	r.scopes.Peek()["this"] = true
 
 	for _, method := range stmt.methods {
 		declaration := FUNCTION_METHOD
 		r.resolveFunction(method, declaration)
 	}
 
-	r.define(stmt.name)
+	r.endScope()
+
 	return nil
 }
 
@@ -218,5 +223,10 @@ func (r *Resolver) visitGetExpr(expr *GetExpr) Any {
 func (r *Resolver) visitSetExpr(expr *SetExpr) Any {
 	r.resolveExpr(expr.object)
 	r.resolveExpr(expr.value)
+	return nil
+}
+
+func (r *Resolver) visitThisExpr(expr *ThisExpr) Any {
+	r.resolveLocal(expr, expr.keyword)
 	return nil
 }

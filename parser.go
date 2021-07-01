@@ -213,6 +213,10 @@ func (p *Parser) primary() Expr {
 		return MakeLiteralExpr(nil)
 	}
 
+	if p.match(THIS) {
+		return MakeThisExpr(p.previous())
+	}
+
 	if p.match(NUMBER, STRING) {
 		return MakeLiteralExpr(p.previous().literal)
 	}
