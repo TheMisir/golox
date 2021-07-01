@@ -202,3 +202,14 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	r.define(stmt.name)
 	return nil
 }
+
+func (r *Resolver) visitGetExpr(expr *GetExpr) Any {
+	r.resolveExpr(expr.object)
+	return nil
+}
+
+func (r *Resolver) visitSetExpr(expr *SetExpr) Any {
+	r.resolveExpr(expr.object)
+	r.resolveExpr(expr.value)
+	return nil
+}

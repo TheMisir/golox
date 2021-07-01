@@ -72,6 +72,8 @@ func (p *Parser) assignment() Expr {
 		case *VariableExpr:
 			name := val.name
 			return MakeAssignExpr(name, value)
+		case *GetExpr:
+			return MakeSetExpr(val.object, val.name, value)
 		}
 
 		p.error(equals, "Invalid assignment target.")
@@ -168,6 +170,9 @@ func (p *Parser) call() Expr {
 	for {
 		if p.match(LEFT_PAREN) {
 			expr = p.finishCall(expr)
+		} else if p.match(DOT) {
+			name := p.consume(IDENTIFIER, "Expect property name after '.'.")
+			expr = MakeGetExpr(expr, name)
 		} else {
 			break
 		}

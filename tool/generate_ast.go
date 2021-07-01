@@ -8,14 +8,19 @@ import (
 
 func main() {
 	types := map[string]string{
-		"AssignExpr":     "name *Token, value Expr",
-		"BinaryExpr":     "left Expr, operator *Token, right Expr",
-		"CallExpr":       "callee Expr, paren *Token, arguments []Expr",
-		"GroupingExpr":   "expression Expr",
-		"LiteralExpr":    "value interface{}",
-		"LogicalExpr":    "left Expr, operator *Token, right Expr",
-		"UnaryExpr":      "operator *Token, right Expr",
-		"VariableExpr":   "name *Token",
+		// Expressions
+		"AssignExpr":   "name *Token, value Expr",
+		"BinaryExpr":   "left Expr, operator *Token, right Expr",
+		"CallExpr":     "callee Expr, paren *Token, arguments []Expr",
+		"GetExpr":      "object Expr, name *Token",
+		"GroupingExpr": "expression Expr",
+		"LiteralExpr":  "value interface{}",
+		"LogicalExpr":  "left Expr, operator *Token, right Expr",
+		"SetExpr":      "object Expr, name *Token, value Expr",
+		"UnaryExpr":    "operator *Token, right Expr",
+		"VariableExpr": "name *Token",
+
+		// Statements
 		"BlockStmt":      "statements []Stmt",
 		"ClassStmt":      "name *Token, methods []*FunctionStmt",
 		"ExpressionStmt": "expression Expr",

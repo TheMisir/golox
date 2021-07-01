@@ -376,17 +376,18 @@ func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
 
 func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 	i.environment.define(stmt.name.lexme, nil)
-	klass := MakeLoxClass(stmt.name.lexme)
+	klass := MakeLoxClass(i.context, stmt.name.lexme)
 	i.environment.assign(stmt.name, klass)
 	return nil
 }
 
 type LoxClass struct {
-	name string
+	context *LoxContext
+	name    string
 }
 
-func MakeLoxClass(name string) *LoxClass {
-	return &LoxClass{name: name}
+func MakeLoxClass(context *LoxContext, name string) *LoxClass {
+	return &LoxClass{context: context, name: name}
 }
 
 func (c *LoxClass) String() string {
@@ -403,13 +404,55 @@ func (c *LoxClass) Call(interpreter *Interpreter, arguments []Any) Any {
 }
 
 type LoxInstance struct {
-	klass *LoxClass
+	klass  *LoxClass
+	fields map[string]Any
 }
 
 func MakeLoxInstance(klass *LoxClass) *LoxInstance {
-	return &LoxInstance{klass: klass}
+	return &LoxInstance{
+		klass:  klass,
+		fields: make(map[string]Any),
+	}
+}
+
+func (i *LoxInstance) get(name *Token) Any {
+	if value, ok := i.fields[name.lexme]; ok {
+		return value
+	}
+
+	i.klass.context.runtimeError(name, "Undefined property '%s'.", name.lexme)
+	return nil
+}
+
+func (i *LoxInstance) set(name *Token, value Any) {
+	i.fields[name.lexme] = value
 }
 
 func (i *LoxInstance) String() string {
 	return fmt.Sprintf("%s instance", i.klass.name)
+}
+
+func (i *Interpreter) visitGetExpr(expr *GetExpr) Any {
+	object := i.evaluate(expr.object)
+	switch object := object.(type) {
+	case *LoxInstance:
+		return object.get(expr.name)
+	}
+
+	i.context.runtimeError(expr.name, "Only instances have properties.")
+	return nil
+}
+
+func (i *Interpreter) visitSetExpr(expr *SetExpr) Any {
+	object := i.evaluate(expr.object)
+
+	switch object := object.(type) {
+	case *LoxInstance:
+		value := i.evaluate(expr.value)
+		object.set(expr.name, value)
+		return nil
+	}
+
+	i.context.runtimeError(expr.name, "Only instances have fields.")
+	return nil
 }

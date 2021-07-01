@@ -7,9 +7,7 @@ import (
 
 type AstPrinter struct{}
 
-func MakeAstPrinter() *AstPrinter {
-	return &AstPrinter{}
-}
+var treePrinter = &AstPrinter{}
 
 func (p *AstPrinter) printExpr(expr Expr) string {
 	return expr.accept(p).(string)
@@ -52,7 +50,7 @@ func (p *AstPrinter) visitVarStmt(stmt *VarStmt) Any {
 }
 
 func (p *AstPrinter) visitAssignExpr(expr *AssignExpr) Any {
-	return fmt.Sprintf("AssignExpr(%s %s)", expr.name.lexme, p.printExpr(expr.value))
+	return fmt.Sprintf("AssignExpr(%s = %s)", expr.name.lexme, p.printExpr(expr.value))
 }
 
 func (p *AstPrinter) visitBlockStmt(stmt *BlockStmt) Any {
@@ -118,4 +116,12 @@ func (p *AstPrinter) visitClassStmt(stmt *ClassStmt) Any {
 	}
 
 	return fmt.Sprintf("ClassStmt(%s) {%s}", stmt.name.lexme, strings.Join(methods, ", "))
+}
+
+func (p *AstPrinter) visitGetExpr(expr *GetExpr) Any {
+	return fmt.Sprintf("GetExpr(%s.%s)", p.printExpr(expr.object), expr.name.lexme)
+}
+
+func (p *AstPrinter) visitSetExpr(expr *SetExpr) Any {
+	return fmt.Sprintf("SetExpr(%s.%s = %s)", p.printExpr(expr.object), expr.name.lexme, p.printExpr(expr.value))
 }

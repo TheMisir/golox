@@ -8,13 +8,15 @@ type Expr interface {
 }
 type ExprVisitor interface {
 	visitBinaryExpr(expr *BinaryExpr) Any
+	visitCallExpr(expr *CallExpr) Any
+	visitGetExpr(expr *GetExpr) Any
+	visitSetExpr(expr *SetExpr) Any
 	visitGroupingExpr(expr *GroupingExpr) Any
 	visitLiteralExpr(expr *LiteralExpr) Any
 	visitUnaryExpr(expr *UnaryExpr) Any
 	visitVariableExpr(expr *VariableExpr) Any
 	visitAssignExpr(expr *AssignExpr) Any
 	visitLogicalExpr(expr *LogicalExpr) Any
-	visitCallExpr(expr *CallExpr) Any
 }
 
 type Stmt interface {
