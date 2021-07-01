@@ -17,7 +17,7 @@ func MakeInterpreter(context *LoxContext) *Interpreter {
 	globals := MakeEnvironment(context, nil)
 
 	globals.define("clock", MakeLoxCallable(0, func(interpreter *Interpreter, arguments []Any) Any {
-		return time.Now().UnixNano() / 1000000
+		return float64(time.Now().UnixNano()) / float64(1000000)
 	}))
 
 	return &Interpreter{
@@ -409,8 +409,8 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 	i.environment.define(stmt.name.lexme, nil)
 
 	if superclass != nil {
-		environment := i.environment.extend()
-		environment.define("super", superclass)
+		i.environment = i.environment.extend()
+		i.environment.define("super", superclass)
 	}
 
 	methods := make(map[string]*LoxFunction)
