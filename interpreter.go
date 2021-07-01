@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 )
 
 type Interpreter struct {
@@ -16,9 +15,7 @@ type Interpreter struct {
 func MakeInterpreter(context *LoxContext) *Interpreter {
 	globals := MakeEnvironment(context, nil)
 
-	globals.define("time", MakeLoxCallable(0, func(interpreter *Interpreter, arguments []Any) Any {
-		return float64(time.Now().UnixNano()) / float64(100000000)
-	}))
+	InitializeStdLib(globals)
 
 	return &Interpreter{
 		context:     context,
@@ -297,7 +294,7 @@ func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
 	switch val := callee.(type) {
 	case LoxCallable:
 		if val.Arity() != len(expr.arguments) {
-			i.context.runtimeError(expr.paren, "Expected %v arguments byt got %v.", val.Arity(), len(expr.arguments))
+			i.context.runtimeError(expr.paren, "Expected %v arguments but got %v.", val.Arity(), len(expr.arguments))
 		}
 
 		arguments := make([]Any, len(expr.arguments))
