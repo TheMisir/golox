@@ -313,18 +313,23 @@ func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
 }
 
 type LoxFunction struct {
-	declaration *FunctionStmt
-	closure     *Environment
+	declaration   *FunctionStmt
+	closure       *Environment
+	isInitializer bool
 }
 
-func MakeLoxFunction(declaration *FunctionStmt, closure *Environment) *LoxFunction {
-	return &LoxFunction{declaration: declaration, closure: closure}
+func MakeLoxFunction(declaration *FunctionStmt, closure *Environment, isInitializer bool) *LoxFunction {
+	return &LoxFunction{
+		declaration:   declaration,
+		closure:       closure,
+		isInitializer: isInitializer,
+	}
 }
 
 func (f *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
 	environment := MakeEnvironment(f.closure.context, f.closure)
 	environment.define("this", instance)
-	return MakeLoxFunction(f.declaration, environment)
+	return MakeLoxFunction(f.declaration, environment, f.isInitializer)
 }
 
 func (f *LoxFunction) Arity() int {
@@ -341,7 +346,11 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result An
 		if r := recover(); r != nil {
 			switch r := r.(type) {
 			case *Return:
-				result = r.value
+				if f.isInitializer {
+					result = f.closure.getAt(0, "this")
+				} else {
+					result = r.value
+				}
 				break
 			default:
 				panic(r)
@@ -350,11 +359,16 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result An
 	}()
 
 	interpreter.executeBlock(f.declaration.body, environment)
+
+	if f.isInitializer {
+		return f.closure.getAt(0, "this")
+	}
+
 	return nil
 }
 
 func (i *Interpreter) visitFunctionStmt(stmt *FunctionStmt) Any {
-	function := MakeLoxFunction(stmt, i.environment)
+	function := MakeLoxFunction(stmt, i.environment, false)
 	i.environment.define(stmt.name.lexme, function)
 	return nil
 }
@@ -385,7 +399,7 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 
 	methods := make(map[string]*LoxFunction)
 	for _, method := range stmt.methods {
-		function := MakeLoxFunction(method, i.environment)
+		function := MakeLoxFunction(method, i.environment, method.name.lexme == "init")
 		methods[method.name.lexme] = function
 	}
 
@@ -409,11 +423,19 @@ func (c *LoxClass) String() string {
 }
 
 func (c *LoxClass) Arity() int {
+	if initializer := c.findMethod("init"); initializer != nil {
+		return initializer.Arity()
+	}
+
 	return 0
 }
 
 func (c *LoxClass) Call(interpreter *Interpreter, arguments []Any) Any {
 	instance := MakeLoxInstance(c)
+	if initializer := c.findMethod("init"); initializer != nil {
+		initializer.bind(instance).Call(interpreter, arguments)
+	}
+
 	return instance
 }
 

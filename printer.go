@@ -94,7 +94,7 @@ func (p *AstPrinter) visitCallExpr(expr *CallExpr) Any {
 func (p *AstPrinter) visitFunctionStmt(stmt *FunctionStmt) Any {
 	params := make([]string, len(stmt.params))
 	for index, param := range stmt.params {
-		params[index] = param.toString()
+		params[index] = param.String()
 	}
 
 	body := make([]string, len(stmt.body))

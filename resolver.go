@@ -4,9 +4,10 @@ type FunctionType string
 type ClassType string
 
 const (
-	FUNCTION_NONE     FunctionType = "NONE"
-	FUNCTION_FUNCTION FunctionType = "FUNCTION"
-	FUNCTION_METHOD   FunctionType = "METHOD"
+	FUNCTION_NONE        FunctionType = "NONE"
+	FUNCTION_FUNCTION    FunctionType = "FUNCTION"
+	FUNCTION_INITIALIZER FunctionType = "INITIALIZER"
+	FUNCTION_METHOD      FunctionType = "METHOD"
 
 	CLASS_NONE  ClassType = "NONE"
 	CLASS_CLASS ClassType = "CLASS"
@@ -154,6 +155,10 @@ func (r *Resolver) visitReturnStmt(stmt *ReturnStmt) Any {
 	}
 
 	if stmt.value != nil {
+		if r.currentFunction == FUNCTION_INITIALIZER {
+			r.context.tokenError(stmt.keyword, "Can't return a value from an initializer.")
+		}
+
 		r.resolveExpr(stmt.value)
 	}
 	return nil
@@ -216,6 +221,10 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 
 	for _, method := range stmt.methods {
 		declaration := FUNCTION_METHOD
+		if method.name.lexme == "init" {
+			declaration = FUNCTION_INITIALIZER
+		}
+
 		r.resolveFunction(method, declaration)
 	}
 

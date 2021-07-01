@@ -83,7 +83,7 @@ type Token struct {
 	literal   interface{}
 }
 
-func (t *Token) toString() string {
+func (t *Token) String() string {
 	switch value := t.literal.(type) {
 	case string:
 		return fmt.Sprintf("%s %s %s at %v", t.tokenType, t.lexme, value, t.line)
