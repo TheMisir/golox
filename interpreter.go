@@ -16,8 +16,8 @@ type Interpreter struct {
 func MakeInterpreter(context *LoxContext) *Interpreter {
 	globals := MakeEnvironment(context, nil)
 
-	globals.define("clock", MakeLoxCallable(0, func(interpreter *Interpreter, arguments []Any) Any {
-		return float64(time.Now().UnixNano()) / float64(1000000)
+	globals.define("time", MakeLoxCallable(0, func(interpreter *Interpreter, arguments []Any) Any {
+		return float64(time.Now().UnixNano()) / float64(100000000)
 	}))
 
 	return &Interpreter{
