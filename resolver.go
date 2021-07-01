@@ -1,11 +1,15 @@
 package main
 
 type FunctionType string
+type ClassType string
 
 const (
 	FUNCTION_NONE     FunctionType = "NONE"
 	FUNCTION_FUNCTION FunctionType = "FUNCTION"
 	FUNCTION_METHOD   FunctionType = "METHOD"
+
+	CLASS_NONE  ClassType = "NONE"
+	CLASS_CLASS ClassType = "CLASS"
 )
 
 type Resolver struct {
@@ -13,6 +17,7 @@ type Resolver struct {
 	interpreter     *Interpreter
 	scopes          *ResolverStack
 	currentFunction FunctionType
+	currentClass    ClassType
 }
 
 func MakeResolver(context *LoxContext, interpreter *Interpreter) *Resolver {
@@ -21,6 +26,7 @@ func MakeResolver(context *LoxContext, interpreter *Interpreter) *Resolver {
 		interpreter:     interpreter,
 		scopes:          &ResolverStack{},
 		currentFunction: FUNCTION_NONE,
+		currentClass:    CLASS_NONE,
 	}
 }
 
@@ -199,6 +205,9 @@ func (r *Resolver) visitPrintStmt(stmt *PrintStmt) Any {
 }
 
 func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
+	enclosingClass := r.currentClass
+	r.currentClass = CLASS_CLASS
+
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
@@ -212,6 +221,7 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 
 	r.endScope()
 
+	r.currentClass = enclosingClass
 	return nil
 }
 
@@ -227,6 +237,11 @@ func (r *Resolver) visitSetExpr(expr *SetExpr) Any {
 }
 
 func (r *Resolver) visitThisExpr(expr *ThisExpr) Any {
+	if r.currentClass == CLASS_NONE {
+		r.context.tokenError(expr.keyword, "Can't use 'this' outside of a class.")
+		return nil
+	}
+
 	r.resolveLocal(expr, expr.keyword)
 	return nil
 }
