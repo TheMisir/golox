@@ -115,7 +115,12 @@ func (p *AstPrinter) visitClassStmt(stmt *ClassStmt) Any {
 		methods[index] = p.printStmt(method)
 	}
 
-	return fmt.Sprintf("ClassStmt(%s) {%s}", stmt.name.lexme, strings.Join(methods, ", "))
+	superclass := ""
+	if stmt.superclass != nil {
+		superclass = fmt.Sprintf(" < %s", p.printExpr(stmt.superclass))
+	}
+
+	return fmt.Sprintf("ClassStmt(%s%s) {%s}", stmt.name.lexme, superclass, strings.Join(methods, ", "))
 }
 
 func (p *AstPrinter) visitGetExpr(expr *GetExpr) Any {

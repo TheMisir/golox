@@ -23,7 +23,7 @@ func main() {
 
 		// Statements
 		"BlockStmt":      "statements []Stmt",
-		"ClassStmt":      "name *Token, methods []*FunctionStmt",
+		"ClassStmt":      "name *Token, superclass *VariableExpr, methods []*FunctionStmt",
 		"ExpressionStmt": "expression Expr",
 		"IfStmt":         "condition Expr, thenBranch Stmt, elseBranch Stmt",
 		"PrintStmt":      "expression Expr",

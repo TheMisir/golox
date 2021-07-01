@@ -216,6 +216,14 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
+	if stmt.superclass != nil && stmt.name.lexme == stmt.superclass.name.lexme {
+		r.context.tokenError(stmt.superclass.name, "A class cant't inherite from itself.")
+	}
+
+	if stmt.superclass != nil {
+		r.resolveExpr(stmt.superclass)
+	}
+
 	r.beginScope()
 	r.scopes.Peek()["this"] = true
 

@@ -395,6 +395,17 @@ func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
 }
 
 func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
+	var superclass *LoxClass = nil
+	if stmt.superclass != nil {
+		switch value := i.evaluate(stmt.superclass).(type) {
+		case *LoxClass:
+			superclass = value
+			break
+		default:
+			i.context.runtimeError(stmt.superclass.name, "Superclass must be a class.")
+		}
+	}
+
 	i.environment.define(stmt.name.lexme, nil)
 
 	methods := make(map[string]*LoxFunction)
@@ -403,19 +414,25 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 		methods[method.name.lexme] = function
 	}
 
-	klass := MakeLoxClass(i.context, stmt.name.lexme, methods)
+	klass := MakeLoxClass(i.context, stmt.name.lexme, superclass, methods)
 	i.environment.assign(stmt.name, klass)
 	return nil
 }
 
 type LoxClass struct {
-	context *LoxContext
-	name    string
-	methods map[string]*LoxFunction
+	context    *LoxContext
+	name       string
+	superclass *LoxClass
+	methods    map[string]*LoxFunction
 }
 
-func MakeLoxClass(context *LoxContext, name string, methods map[string]*LoxFunction) *LoxClass {
-	return &LoxClass{context: context, name: name, methods: methods}
+func MakeLoxClass(context *LoxContext, name string, superclass *LoxClass, methods map[string]*LoxFunction) *LoxClass {
+	return &LoxClass{
+		context:    context,
+		name:       name,
+		superclass: superclass,
+		methods:    methods,
+	}
 }
 
 func (c *LoxClass) String() string {
@@ -442,6 +459,10 @@ func (c *LoxClass) Call(interpreter *Interpreter, arguments []Any) Any {
 func (c *LoxClass) findMethod(name string) *LoxFunction {
 	if method, ok := c.methods[name]; ok {
 		return method
+	}
+
+	if c.superclass != nil {
+		return c.superclass.findMethod(name)
 	}
 
 	return nil
