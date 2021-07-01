@@ -213,6 +213,13 @@ func (p *Parser) primary() Expr {
 		return MakeLiteralExpr(nil)
 	}
 
+	if p.match(SUPER) {
+		keyword := p.previous()
+		p.consume(DOT, "Expect '.' after 'super'.")
+		method := p.consume(IDENTIFIER, "Expect superclass method name.")
+		return MakeSuperExpr(keyword, method)
+	}
+
 	if p.match(THIS) {
 		return MakeThisExpr(p.previous())
 	}

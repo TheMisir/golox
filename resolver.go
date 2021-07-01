@@ -9,8 +9,9 @@ const (
 	FUNCTION_INITIALIZER FunctionType = "INITIALIZER"
 	FUNCTION_METHOD      FunctionType = "METHOD"
 
-	CLASS_NONE  ClassType = "NONE"
-	CLASS_CLASS ClassType = "CLASS"
+	CLASS_NONE     ClassType = "NONE"
+	CLASS_CLASS    ClassType = "CLASS"
+	CLASS_SUBCLASS ClassType = "SUBCLASS"
 )
 
 type Resolver struct {
@@ -221,7 +222,13 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	}
 
 	if stmt.superclass != nil {
+		r.currentClass = CLASS_SUBCLASS
 		r.resolveExpr(stmt.superclass)
+	}
+
+	if stmt.superclass != nil {
+		r.beginScope()
+		r.scopes.Peek()["super"] = true
 	}
 
 	r.beginScope()
@@ -237,6 +244,10 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	}
 
 	r.endScope()
+
+	if stmt.superclass != nil {
+		r.endScope()
+	}
 
 	r.currentClass = enclosingClass
 	return nil
@@ -257,6 +268,17 @@ func (r *Resolver) visitThisExpr(expr *ThisExpr) Any {
 	if r.currentClass == CLASS_NONE {
 		r.context.tokenError(expr.keyword, "Can't use 'this' outside of a class.")
 		return nil
+	}
+
+	r.resolveLocal(expr, expr.keyword)
+	return nil
+}
+
+func (r *Resolver) visitSuperExpr(expr *SuperExpr) Any {
+	if r.currentClass == CLASS_NONE {
+		r.context.tokenError(expr.keyword, "Can't use 'super' outside of a class.")
+	} else if r.currentClass != CLASS_SUBCLASS {
+		r.context.tokenError(expr.keyword, "Can't use 'super' in class with no superclass.")
 	}
 
 	r.resolveLocal(expr, expr.keyword)

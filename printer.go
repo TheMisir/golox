@@ -134,3 +134,7 @@ func (p *AstPrinter) visitSetExpr(expr *SetExpr) Any {
 func (p *AstPrinter) visitThisExpr(expr *ThisExpr) Any {
 	return "ThisExpr"
 }
+
+func (p *AstPrinter) visitSuperExpr(expr *SuperExpr) Any {
+	return fmt.Sprintf("SuperExpr(%s)", expr.method.lexme)
+}

@@ -219,7 +219,7 @@ func (i *Interpreter) visitVarStmt(stmt *VarStmt) Any {
 }
 
 func (i *Interpreter) visitBlockStmt(stmt *BlockStmt) Any {
-	i.executeBlock(stmt.statements, MakeEnvironment(i.context, i.environment))
+	i.executeBlock(stmt.statements, i.environment.extend())
 	return nil
 }
 
@@ -327,7 +327,7 @@ func MakeLoxFunction(declaration *FunctionStmt, closure *Environment, isInitiali
 }
 
 func (f *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
-	environment := MakeEnvironment(f.closure.context, f.closure)
+	environment := f.closure.extend()
 	environment.define("this", instance)
 	return MakeLoxFunction(f.declaration, environment, f.isInitializer)
 }
@@ -337,7 +337,7 @@ func (f *LoxFunction) Arity() int {
 }
 
 func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result Any) {
-	environment := MakeEnvironment(interpreter.context, f.closure)
+	environment := f.closure.extend()
 	for index, param := range f.declaration.params {
 		environment.define(param.lexme, arguments[index])
 	}
@@ -408,6 +408,11 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 
 	i.environment.define(stmt.name.lexme, nil)
 
+	if superclass != nil {
+		environment := i.environment.extend()
+		environment.define("super", superclass)
+	}
+
 	methods := make(map[string]*LoxFunction)
 	for _, method := range stmt.methods {
 		function := MakeLoxFunction(method, i.environment, method.name.lexme == "init")
@@ -415,6 +420,11 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 	}
 
 	klass := MakeLoxClass(i.context, stmt.name.lexme, superclass, methods)
+
+	if superclass != nil {
+		i.environment = i.environment.enclosing
+	}
+
 	i.environment.assign(stmt.name, klass)
 	return nil
 }
@@ -528,4 +538,18 @@ func (i *Interpreter) visitSetExpr(expr *SetExpr) Any {
 
 func (i *Interpreter) visitThisExpr(expr *ThisExpr) Any {
 	return i.lookUpVariable(expr.keyword, expr)
+}
+
+func (i *Interpreter) visitSuperExpr(expr *SuperExpr) Any {
+	distance := i.locals[expr]
+	superclass := i.environment.getAt(distance, "super").(*LoxClass)
+
+	object := i.environment.getAt(distance-1, "this").(*LoxInstance)
+
+	method := superclass.findMethod(expr.method.lexme)
+	if method == nil {
+		i.context.runtimeError(expr.method, "Undefined property '%s'.", expr.method.lexme)
+	}
+
+	return method.bind(object)
 }
