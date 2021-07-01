@@ -7,39 +7,41 @@ import (
 )
 
 func main() {
-	types := map[string]string{
+	types := []string{
 		// Expressions
-		"AssignExpr":   "name *Token, value Expr",
-		"BinaryExpr":   "left Expr, operator *Token, right Expr",
-		"CallExpr":     "callee Expr, paren *Token, arguments []Expr",
-		"GetExpr":      "object Expr, name *Token",
-		"GroupingExpr": "expression Expr",
-		"LiteralExpr":  "value interface{}",
-		"LogicalExpr":  "left Expr, operator *Token, right Expr",
-		"SetExpr":      "object Expr, name *Token, value Expr",
-		"SuperExpr":    "keyword *Token, method *Token",
-		"ThisExpr":     "keyword *Token",
-		"UnaryExpr":    "operator *Token, right Expr",
-		"VariableExpr": "name *Token",
+		"AssignExpr:   name *Token, value Expr",
+		"BinaryExpr:   left Expr, operator *Token, right Expr",
+		"CallExpr:     callee Expr, paren *Token, arguments []Expr",
+		"GetExpr:      object Expr, name *Token",
+		"GroupingExpr: expression Expr",
+		"LiteralExpr:  value interface{}",
+		"LogicalExpr:  left Expr, operator *Token, right Expr",
+		"SetExpr:      object Expr, name *Token, value Expr",
+		"SuperExpr:    keyword *Token, method *Token",
+		"ThisExpr:     keyword *Token",
+		"UnaryExpr:    operator *Token, right Expr",
+		"VariableExpr: name *Token",
 
 		// Statements
-		"BlockStmt":      "statements []Stmt",
-		"ClassStmt":      "name *Token, superclass *VariableExpr, methods []*FunctionStmt",
-		"ExpressionStmt": "expression Expr",
-		"IfStmt":         "condition Expr, thenBranch Stmt, elseBranch Stmt",
-		"PrintStmt":      "expression Expr",
-		"VarStmt":        "name *Token, initializer Expr",
-		"WhileStmt":      "condition Expr, body Stmt",
-		"FunctionStmt":   "name *Token, params []*Token, body []Stmt",
-		"ReturnStmt":     "keyword *Token, value Expr",
+		"BlockStmt:      statements []Stmt",
+		"ClassStmt:      name *Token, superclass *VariableExpr, methods []*FunctionStmt",
+		"ExpressionStmt: expression Expr",
+		"IfStmt:         condition Expr, thenBranch Stmt, elseBranch Stmt",
+		"PrintStmt:      expression Expr",
+		"VarStmt:        name *Token, initializer Expr",
+		"WhileStmt:      condition Expr, body Stmt",
+		"FunctionStmt:   name *Token, params []*Token, body []Stmt",
+		"ReturnStmt:     keyword *Token, value Expr",
 	}
 
 	defs := "package main\n\n"
 	impl := ""
 	ctor := ""
 
-	for name, params := range types {
-		params := strings.Split(params, ",")
+	for _, line := range types {
+		parts := strings.Split(line, ":")
+		name := parts[0]
+		params := strings.Split(strings.Trim(parts[1], " "), ",")
 		typeName := name[len(name)-4:]
 
 		defs += fmt.Sprintf("type %s struct {\n", name)
