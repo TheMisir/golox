@@ -10,6 +10,7 @@ type Interpreter struct {
 	context     *LoxContext
 	environment *Environment
 	globals     *Environment
+	locals      map[Expr]int
 }
 
 func MakeInterpreter(context *LoxContext) *Interpreter {
@@ -23,7 +24,12 @@ func MakeInterpreter(context *LoxContext) *Interpreter {
 		context:     context,
 		environment: globals,
 		globals:     globals,
+		locals:      make(map[Expr]int),
 	}
+}
+
+func (i *Interpreter) resolve(expr Expr, depth int) {
+	i.locals[expr] = depth
 }
 
 func (i *Interpreter) evaluate(expr Expr) Any {
@@ -127,12 +133,29 @@ func (i *Interpreter) visitUnaryExpr(expr *UnaryExpr) Any {
 
 func (i *Interpreter) visitAssignExpr(expr *AssignExpr) Any {
 	value := i.evaluate(expr.value)
-	i.environment.assign(expr.name, value)
+
+	distance, ok := i.locals[expr]
+	if ok {
+		i.environment.assignAt(distance, expr.name.lexme, value)
+	} else {
+		i.globals.assign(expr.name, value)
+	}
+
 	return value
 }
 
 func (i *Interpreter) visitVariableExpr(expr *VariableExpr) Any {
-	return i.environment.get(expr.name)
+	return i.lookUpVariable(expr.name, expr)
+}
+
+func (i *Interpreter) lookUpVariable(name *Token, expr Expr) Any {
+	distance, ok := i.locals[expr]
+
+	if ok {
+		return i.environment.getAt(distance, name.lexme)
+	} else {
+		return i.globals.get(name)
+	}
 }
 
 func isTruthy(value Any) bool {

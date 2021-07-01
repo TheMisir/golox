@@ -38,6 +38,12 @@ func runFromStdin() {
 			continue
 		}
 
+		resolver := MakeResolver(ctx, interpreter)
+		resolver.resolve(statements)
+		if ctx.hadError {
+			continue
+		}
+
 		if len(statements) == 1 {
 			switch val := statements[0].(type) {
 			case *ExpressionStmt:
@@ -54,6 +60,7 @@ func runFromStdin() {
 
 func run(source string) {
 	ctx := MakeContext()
+	interpreter := MakeInterpreter(ctx)
 
 	scanner := MakeScanner(ctx, source)
 	scanner.scanTokens()
@@ -67,7 +74,12 @@ func run(source string) {
 		os.Exit(65)
 	}
 
-	interpreter := MakeInterpreter(ctx)
+	resolver := MakeResolver(ctx, interpreter)
+	resolver.resolve(statements)
+	if ctx.hadError {
+		os.Exit(65)
+	}
+
 	interpreter.interpret(statements)
 }
 

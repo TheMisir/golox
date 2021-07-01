@@ -31,6 +31,19 @@ func (e *Environment) get(name *Token) Any {
 	return nil // will not be executed
 }
 
+func (e *Environment) getAt(distance int, name string) Any {
+	return e.ancestor(distance).values[name]
+}
+
+func (e *Environment) ancestor(distance int) *Environment {
+	environment := e
+	for i := 0; i < distance; i++ {
+		environment = environment.enclosing
+	}
+
+	return environment
+}
+
 func (e *Environment) assign(name *Token, value Any) {
 	if _, ok := e.values[name.lexme]; ok {
 		e.values[name.lexme] = value
@@ -43,4 +56,8 @@ func (e *Environment) assign(name *Token, value Any) {
 	}
 
 	e.context.runtimeError(name, "Undefined variable '%s'.", name.lexme)
+}
+
+func (e *Environment) assignAt(distance int, name string, value Any) {
+	e.ancestor(distance).values[name] = value
 }
