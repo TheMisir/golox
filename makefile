@@ -20,6 +20,9 @@ generate:
 build:
 	$(GO) build -o $(OUT)
 
+build-linux:
+	GOOS=linux $(GO) build -o build/linux/golox
+
 run:
 	$(GO) run .
 
