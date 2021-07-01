@@ -9,7 +9,7 @@ type Environment struct {
 func MakeEnvironment(context *LoxContext, enclosing *Environment) *Environment {
 	return &Environment{
 		context:   context,
-		values:    make(map[string]Any, 0),
+		values:    make(map[string]Any),
 		enclosing: enclosing,
 	}
 }
@@ -17,7 +17,7 @@ func MakeEnvironment(context *LoxContext, enclosing *Environment) *Environment {
 func (e *Environment) extend() *Environment {
 	return &Environment{
 		context:   e.context,
-		values:    make(map[string]Any, 0),
+		values:    make(map[string]Any),
 		enclosing: e,
 	}
 }
