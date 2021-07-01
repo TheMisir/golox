@@ -5,6 +5,7 @@ type FunctionType string
 const (
 	FUNCTION_NONE     FunctionType = "NONE"
 	FUNCTION_FUNCTION FunctionType = "FUNCTION"
+	FUNCTION_METHOD   FunctionType = "METHOD"
 )
 
 type Resolver struct {
@@ -199,6 +200,12 @@ func (r *Resolver) visitPrintStmt(stmt *PrintStmt) Any {
 
 func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 	r.declare(stmt.name)
+
+	for _, method := range stmt.methods {
+		declaration := FUNCTION_METHOD
+		r.resolveFunction(method, declaration)
+	}
+
 	r.define(stmt.name)
 	return nil
 }

@@ -376,7 +376,14 @@ func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
 
 func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 	i.environment.define(stmt.name.lexme, nil)
-	klass := MakeLoxClass(i.context, stmt.name.lexme)
+
+	methods := make(map[string]*LoxFunction)
+	for _, method := range stmt.methods {
+		function := MakeLoxFunction(method, i.environment)
+		methods[method.name.lexme] = function
+	}
+
+	klass := MakeLoxClass(i.context, stmt.name.lexme, methods)
 	i.environment.assign(stmt.name, klass)
 	return nil
 }
@@ -384,10 +391,11 @@ func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
 type LoxClass struct {
 	context *LoxContext
 	name    string
+	methods map[string]*LoxFunction
 }
 
-func MakeLoxClass(context *LoxContext, name string) *LoxClass {
-	return &LoxClass{context: context, name: name}
+func MakeLoxClass(context *LoxContext, name string, methods map[string]*LoxFunction) *LoxClass {
+	return &LoxClass{context: context, name: name, methods: methods}
 }
 
 func (c *LoxClass) String() string {
@@ -401,6 +409,14 @@ func (c *LoxClass) Arity() int {
 func (c *LoxClass) Call(interpreter *Interpreter, arguments []Any) Any {
 	instance := MakeLoxInstance(c)
 	return instance
+}
+
+func (c *LoxClass) findMethod(name string) *LoxFunction {
+	if method, ok := c.methods[name]; ok {
+		return method
+	}
+
+	return nil
 }
 
 type LoxInstance struct {
@@ -418,6 +434,10 @@ func MakeLoxInstance(klass *LoxClass) *LoxInstance {
 func (i *LoxInstance) get(name *Token) Any {
 	if value, ok := i.fields[name.lexme]; ok {
 		return value
+	}
+
+	if method := i.klass.findMethod(name.lexme); method != nil {
+		return method
 	}
 
 	i.klass.context.runtimeError(name, "Undefined property '%s'.", name.lexme)
