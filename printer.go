@@ -110,3 +110,12 @@ func (p *AstPrinter) visitFunctionStmt(stmt *FunctionStmt) Any {
 func (p *AstPrinter) visitReturnStmt(stmt *ReturnStmt) Any {
 	return fmt.Sprintf("ReturnStmt(%s)", p.printExpr(stmt.value))
 }
+
+func (p *AstPrinter) visitClassStmt(stmt *ClassStmt) Any {
+	methods := make([]string, len(stmt.methods))
+	for index, method := range stmt.methods {
+		methods[index] = p.printStmt(method)
+	}
+
+	return fmt.Sprintf("ClassStmt(%s) {%s}", stmt.name.lexme, strings.Join(methods, ", "))
+}

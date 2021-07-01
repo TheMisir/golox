@@ -373,3 +373,43 @@ func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
 
 	panic(MakeReturn(value))
 }
+
+func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
+	i.environment.define(stmt.name.lexme, nil)
+	klass := MakeLoxClass(stmt.name.lexme)
+	i.environment.assign(stmt.name, klass)
+	return nil
+}
+
+type LoxClass struct {
+	name string
+}
+
+func MakeLoxClass(name string) *LoxClass {
+	return &LoxClass{name: name}
+}
+
+func (c *LoxClass) String() string {
+	return c.name
+}
+
+func (c *LoxClass) Arity() int {
+	return 0
+}
+
+func (c *LoxClass) Call(interpreter *Interpreter, arguments []Any) Any {
+	instance := MakeLoxInstance(c)
+	return instance
+}
+
+type LoxInstance struct {
+	klass *LoxClass
+}
+
+func MakeLoxInstance(klass *LoxClass) *LoxInstance {
+	return &LoxInstance{klass: klass}
+}
+
+func (i *LoxInstance) String() string {
+	return fmt.Sprintf("%s instance", i.klass.name)
+}

@@ -30,4 +30,5 @@ type StmtVisitor interface {
 	visitWhileStmt(stmt *WhileStmt) Any
 	visitFunctionStmt(stmt *FunctionStmt) Any
 	visitReturnStmt(stmt *ReturnStmt) Any
+	visitClassStmt(stmt *ClassStmt) Any
 }

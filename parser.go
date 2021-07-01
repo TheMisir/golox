@@ -276,6 +276,8 @@ func (p *Parser) declaration() (result Stmt) {
 			result = p.varDeclaration()
 		} else if p.match(FUN) {
 			result = p.function("function")
+		} else if p.match(CLASS) {
+			result = p.classDeclaration()
 		} else {
 			result = p.statement()
 		}
@@ -286,7 +288,21 @@ func (p *Parser) declaration() (result Stmt) {
 	return
 }
 
-func (p *Parser) function(kind string) Stmt {
+func (p *Parser) classDeclaration() Stmt {
+	name := p.consume(IDENTIFIER, "Expect class name.")
+	p.consume(LEFT_BRACE, "Expect '{' after class name.")
+
+	methods := make([]*FunctionStmt, 0)
+	for !p.check(RIGHT_BRACE) && !p.isAtEnd() {
+		methods = append(methods, p.function("method"))
+	}
+
+	p.consume(RIGHT_BRACE, "Expect '}' after class body.")
+
+	return MakeClassStmt(name, methods)
+}
+
+func (p *Parser) function(kind string) *FunctionStmt {
 	identifier := p.consume(IDENTIFIER, "Expect %s name.", kind)
 	p.consume(LEFT_PAREN, "Expect '(' after %s name.", kind)
 	parameters := make([]*Token, 0)

@@ -196,3 +196,9 @@ func (r *Resolver) visitPrintStmt(stmt *PrintStmt) Any {
 	r.resolveExpr(stmt.expression)
 	return nil
 }
+
+func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
+	r.declare(stmt.name)
+	r.define(stmt.name)
+	return nil
+}

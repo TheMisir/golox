@@ -17,6 +17,7 @@ func main() {
 		"UnaryExpr":      "operator *Token, right Expr",
 		"VariableExpr":   "name *Token",
 		"BlockStmt":      "statements []Stmt",
+		"ClassStmt":      "name *Token, methods []*FunctionStmt",
 		"ExpressionStmt": "expression Expr",
 		"IfStmt":         "condition Expr, thenBranch Stmt, elseBranch Stmt",
 		"PrintStmt":      "expression Expr",
