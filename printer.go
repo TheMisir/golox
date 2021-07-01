@@ -10,10 +10,18 @@ type AstPrinter struct{}
 var treePrinter = &AstPrinter{}
 
 func (p *AstPrinter) printExpr(expr Expr) string {
+	if expr == nil {
+		return "<nil>"
+	}
+
 	return expr.accept(p).(string)
 }
 
 func (p *AstPrinter) printStmt(stmt Stmt) string {
+	if stmt == nil {
+		return "<nil>"
+	}
+
 	return stmt.accept(p).(string)
 }
 
@@ -91,18 +99,18 @@ func (p *AstPrinter) visitCallExpr(expr *CallExpr) Any {
 	return fmt.Sprintf("CallExpr(%s)", strings.Join(arguments, ", "))
 }
 
-func (p *AstPrinter) visitFunctionStmt(stmt *FunctionStmt) Any {
-	params := make([]string, len(stmt.params))
-	for index, param := range stmt.params {
+func (p *AstPrinter) visitFunctionExpr(expr *FunctionExpr) Any {
+	params := make([]string, len(expr.params))
+	for index, param := range expr.params {
 		params[index] = param.String()
 	}
 
-	body := make([]string, len(stmt.body))
-	for index, element := range stmt.body {
+	body := make([]string, len(expr.body))
+	for index, element := range expr.body {
 		body[index] = p.printStmt(element)
 	}
 
-	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", stmt.name.lexme, strings.Join(params, ", "), strings.Join(body, "; "))
+	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", expr.name.lexme, strings.Join(params, ", "), strings.Join(body, "; "))
 }
 
 func (p *AstPrinter) visitReturnStmt(stmt *ReturnStmt) Any {
@@ -112,7 +120,7 @@ func (p *AstPrinter) visitReturnStmt(stmt *ReturnStmt) Any {
 func (p *AstPrinter) visitClassStmt(stmt *ClassStmt) Any {
 	methods := make([]string, len(stmt.methods))
 	for index, method := range stmt.methods {
-		methods[index] = p.printStmt(method)
+		methods[index] = p.printExpr(method)
 	}
 
 	superclass := ""

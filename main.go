@@ -71,6 +71,11 @@ func run(source string) {
 	parser := MakeParser(ctx, scanner.tokens)
 	statements, _ := parser.parse()
 	if ctx.hadError {
+		println("AST:")
+		for _, statement := range statements {
+			println(treePrinter.printStmt(statement))
+		}
+
 		os.Exit(65)
 	}
 

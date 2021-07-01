@@ -114,7 +114,7 @@ func (r *Resolver) visitAssignExpr(expr *AssignExpr) Any {
 	return nil
 }
 
-func (r *Resolver) visitFunctionStmt(stmt *FunctionStmt) Any {
+func (r *Resolver) visitFunctionExpr(stmt *FunctionExpr) Any {
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
@@ -122,7 +122,7 @@ func (r *Resolver) visitFunctionStmt(stmt *FunctionStmt) Any {
 	return nil
 }
 
-func (r *Resolver) resolveFunction(function *FunctionStmt, functionType FunctionType) {
+func (r *Resolver) resolveFunction(function *FunctionExpr, functionType FunctionType) {
 	enclosingFunction := r.currentFunction
 	r.currentFunction = functionType
 

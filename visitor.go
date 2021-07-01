@@ -19,6 +19,7 @@ type ExprVisitor interface {
 	visitThisExpr(expr *ThisExpr) Any
 	visitSuperExpr(expr *SuperExpr) Any
 	visitLogicalExpr(expr *LogicalExpr) Any
+	visitFunctionExpr(expr *FunctionExpr) Any
 }
 
 type Stmt interface {
@@ -32,7 +33,6 @@ type StmtVisitor interface {
 	visitBlockStmt(stmt *BlockStmt) Any
 	visitIfStmt(stmt *IfStmt) Any
 	visitWhileStmt(stmt *WhileStmt) Any
-	visitFunctionStmt(stmt *FunctionStmt) Any
 	visitReturnStmt(stmt *ReturnStmt) Any
 	visitClassStmt(stmt *ClassStmt) Any
 }

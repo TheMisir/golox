@@ -60,6 +60,12 @@ type VariableExpr struct {
 	name *Token
 }
 
+type FunctionExpr struct {
+	name   *Token
+	params []*Token
+	body   []Stmt
+}
+
 type BlockStmt struct {
 	statements []Stmt
 }
@@ -67,7 +73,7 @@ type BlockStmt struct {
 type ClassStmt struct {
 	name       *Token
 	superclass *VariableExpr
-	methods    []*FunctionStmt
+	methods    []*FunctionExpr
 }
 
 type ExpressionStmt struct {
@@ -92,12 +98,6 @@ type VarStmt struct {
 type WhileStmt struct {
 	condition Expr
 	body      Stmt
-}
-
-type FunctionStmt struct {
-	name   *Token
-	params []*Token
-	body   []Stmt
 }
 
 type ReturnStmt struct {
@@ -153,11 +153,15 @@ func MakeVariableExpr(name *Token) *VariableExpr {
 	return &VariableExpr{name: name}
 }
 
+func MakeFunctionExpr(name *Token, params []*Token, body []Stmt) *FunctionExpr {
+	return &FunctionExpr{name: name, params: params, body: body}
+}
+
 func MakeBlockStmt(statements []Stmt) *BlockStmt {
 	return &BlockStmt{statements: statements}
 }
 
-func MakeClassStmt(name *Token, superclass *VariableExpr, methods []*FunctionStmt) *ClassStmt {
+func MakeClassStmt(name *Token, superclass *VariableExpr, methods []*FunctionExpr) *ClassStmt {
 	return &ClassStmt{name: name, superclass: superclass, methods: methods}
 }
 
@@ -179,10 +183,6 @@ func MakeVarStmt(name *Token, initializer Expr) *VarStmt {
 
 func MakeWhileStmt(condition Expr, body Stmt) *WhileStmt {
 	return &WhileStmt{condition: condition, body: body}
-}
-
-func MakeFunctionStmt(name *Token, params []*Token, body []Stmt) *FunctionStmt {
-	return &FunctionStmt{name: name, params: params, body: body}
 }
 
 func MakeReturnStmt(keyword *Token, value Expr) *ReturnStmt {
@@ -237,6 +237,10 @@ func (expr *VariableExpr) accept(v ExprVisitor) Any {
 	return v.visitVariableExpr(expr)
 }
 
+func (expr *FunctionExpr) accept(v ExprVisitor) Any {
+	return v.visitFunctionExpr(expr)
+}
+
 func (expr *BlockStmt) accept(v StmtVisitor) Any {
 	return v.visitBlockStmt(expr)
 }
@@ -263,10 +267,6 @@ func (expr *VarStmt) accept(v StmtVisitor) Any {
 
 func (expr *WhileStmt) accept(v StmtVisitor) Any {
 	return v.visitWhileStmt(expr)
-}
-
-func (expr *FunctionStmt) accept(v StmtVisitor) Any {
-	return v.visitFunctionStmt(expr)
 }
 
 func (expr *ReturnStmt) accept(v StmtVisitor) Any {

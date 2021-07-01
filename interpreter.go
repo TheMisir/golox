@@ -310,12 +310,12 @@ func (i *Interpreter) visitCallExpr(expr *CallExpr) Any {
 }
 
 type LoxFunction struct {
-	declaration   *FunctionStmt
+	declaration   *FunctionExpr
 	closure       *Environment
 	isInitializer bool
 }
 
-func MakeLoxFunction(declaration *FunctionStmt, closure *Environment, isInitializer bool) *LoxFunction {
+func MakeLoxFunction(declaration *FunctionExpr, closure *Environment, isInitializer bool) *LoxFunction {
 	return &LoxFunction{
 		declaration:   declaration,
 		closure:       closure,
@@ -364,10 +364,10 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result An
 	return nil
 }
 
-func (i *Interpreter) visitFunctionStmt(stmt *FunctionStmt) Any {
+func (i *Interpreter) visitFunctionExpr(stmt *FunctionExpr) Any {
 	function := MakeLoxFunction(stmt, i.environment, false)
 	i.environment.define(stmt.name.lexme, function)
-	return nil
+	return function
 }
 
 type Return struct {

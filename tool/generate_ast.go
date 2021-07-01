@@ -21,16 +21,16 @@ func main() {
 		"ThisExpr:     keyword *Token",
 		"UnaryExpr:    operator *Token, right Expr",
 		"VariableExpr: name *Token",
+		"FunctionExpr: name *Token, params []*Token, body []Stmt",
 
 		// Statements
 		"BlockStmt:      statements []Stmt",
-		"ClassStmt:      name *Token, superclass *VariableExpr, methods []*FunctionStmt",
+		"ClassStmt:      name *Token, superclass *VariableExpr, methods []*FunctionExpr",
 		"ExpressionStmt: expression Expr",
 		"IfStmt:         condition Expr, thenBranch Stmt, elseBranch Stmt",
 		"PrintStmt:      expression Expr",
 		"VarStmt:        name *Token, initializer Expr",
 		"WhileStmt:      condition Expr, body Stmt",
-		"FunctionStmt:   name *Token, params []*Token, body []Stmt",
 		"ReturnStmt:     keyword *Token, value Expr",
 	}
 
