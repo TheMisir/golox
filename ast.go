@@ -101,6 +101,13 @@ type WhileStmt struct {
 	body      Stmt
 }
 
+type ForStmt struct {
+	initializer Stmt
+	condition   Expr
+	increment   Expr
+	body        Stmt
+}
+
 type ReturnStmt struct {
 	keyword *Token
 	value   Expr
@@ -186,6 +193,10 @@ func MakeWhileStmt(condition Expr, body Stmt) *WhileStmt {
 	return &WhileStmt{condition: condition, body: body}
 }
 
+func MakeForStmt(initializer Stmt, condition Expr, increment Expr, body Stmt) *ForStmt {
+	return &ForStmt{initializer: initializer, condition: condition, increment: increment, body: body}
+}
+
 func MakeReturnStmt(keyword *Token, value Expr) *ReturnStmt {
 	return &ReturnStmt{keyword: keyword, value: value}
 }
@@ -268,6 +279,10 @@ func (expr *VarStmt) accept(v StmtVisitor) Any {
 
 func (expr *WhileStmt) accept(v StmtVisitor) Any {
 	return v.visitWhileStmt(expr)
+}
+
+func (expr *ForStmt) accept(v StmtVisitor) Any {
+	return v.visitForStmt(expr)
 }
 
 func (expr *ReturnStmt) accept(v StmtVisitor) Any {

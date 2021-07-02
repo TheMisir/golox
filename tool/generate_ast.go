@@ -31,6 +31,7 @@ func main() {
 		"PrintStmt:      expression Expr",
 		"VarStmt:        name *Token, initializer Expr",
 		"WhileStmt:      condition Expr, body Stmt",
+		"ForStmt:        initializer Stmt, condition Expr, increment Expr, body Stmt",
 		"ReturnStmt:     keyword *Token, value Expr",
 	}
 

@@ -151,3 +151,21 @@ func (p *AstPrinter) visitThisExpr(expr *ThisExpr) Any {
 func (p *AstPrinter) visitSuperExpr(expr *SuperExpr) Any {
 	return fmt.Sprintf("SuperExpr(%s)", expr.method.lexme)
 }
+
+func (p *AstPrinter) visitForStmt(stmt *ForStmt) Any {
+	var initializer = ""
+	var condition = ""
+	var increment = ""
+
+	if stmt.initializer != nil {
+		initializer = p.printStmt(stmt.initializer)
+	}
+	if stmt.condition != nil {
+		condition = p.printExpr(stmt.condition)
+	}
+	if stmt.increment != nil {
+		increment = p.printExpr(stmt.increment)
+	}
+
+	return fmt.Sprintf("ForStmt(%s; %s; %s {%s})", initializer, condition, increment, p.printStmt(stmt.body))
+}

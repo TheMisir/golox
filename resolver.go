@@ -173,6 +173,19 @@ func (r *Resolver) visitWhileStmt(stmt *WhileStmt) Any {
 	return nil
 }
 
+func (r *Resolver) visitForStmt(stmt *ForStmt) Any {
+	if stmt.initializer != nil {
+		r.resolveStmt(stmt.initializer)
+	}
+	if stmt.condition != nil {
+		r.resolveExpr(stmt.condition)
+	}
+	if stmt.increment != nil {
+		r.resolveExpr(stmt.increment)
+	}
+	return nil
+}
+
 func (r *Resolver) visitBinaryExpr(expr *BinaryExpr) Any {
 	r.resolveExpr(expr.left)
 	r.resolveExpr(expr.right)

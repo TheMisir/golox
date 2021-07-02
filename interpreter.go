@@ -5,6 +5,13 @@ import (
 	"os"
 )
 
+type LoopBodyResult = string
+
+const (
+	LOOP_CONTINUE = "CONTINUE"
+	LOOP_BREAK    = "BREAK"
+)
+
 type Interpreter struct {
 	context     *LoxContext
 	environment *Environment
@@ -259,9 +266,44 @@ func (i *Interpreter) visitLogicalExpr(expr *LogicalExpr) Any {
 
 func (i *Interpreter) visitWhileStmt(stmt *WhileStmt) Any {
 	for isTruthy(i.evaluate(stmt.condition)) {
-		i.execute(stmt.body)
+		if i.loopBody(stmt.body) == LOOP_BREAK {
+			break
+		}
 	}
 	return nil
+}
+
+func (i *Interpreter) visitForStmt(stmt *ForStmt) Any {
+	var initializer = func() {
+		if stmt.initializer != nil {
+			i.execute(stmt.initializer)
+		}
+	}
+
+	var condition = func() bool {
+		if stmt.condition != nil {
+			return isTruthy(i.evaluate(stmt.condition))
+		}
+		return true
+	}
+
+	var increment = func() {
+		if stmt.increment != nil {
+			i.evaluate(stmt.increment)
+		}
+	}
+
+	for initializer(); condition(); increment() {
+		if i.loopBody(stmt.body) == LOOP_BREAK {
+			break
+		}
+	}
+	return nil
+}
+
+func (i *Interpreter) loopBody(body Stmt) LoopBodyResult {
+	i.execute(body)
+	return LOOP_CONTINUE
 }
 
 type LoxCallable interface {

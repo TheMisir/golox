@@ -439,24 +439,7 @@ func (p *Parser) forStatement() Stmt {
 
 	body := p.statement()
 
-	if increment != nil {
-		body = MakeBlockStmt([]Stmt{
-			body,
-			MakeExpressionStmt(increment),
-		})
-	}
-
-	if condition == nil {
-		condition = MakeLiteralExpr(true)
-	}
-
-	body = MakeWhileStmt(condition, body)
-
-	if initializer != nil {
-		body = MakeBlockStmt([]Stmt{initializer, body})
-	}
-
-	return body
+	return MakeForStmt(initializer, condition, increment, body)
 }
 
 // "while" "(" expression ")" statement ;
