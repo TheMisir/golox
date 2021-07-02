@@ -33,6 +33,8 @@ func main() {
 		"WhileStmt:      condition Expr, body Stmt",
 		"ForStmt:        initializer Stmt, condition Expr, increment Expr, body Stmt",
 		"ReturnStmt:     keyword *Token, value Expr",
+		"ContinueStmt:   keyword *Token",
+		"BreakStmt:      keyword *Token",
 	}
 
 	defs := "package main\n\n"

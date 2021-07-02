@@ -113,6 +113,14 @@ type ReturnStmt struct {
 	value   Expr
 }
 
+type ContinueStmt struct {
+	keyword *Token
+}
+
+type BreakStmt struct {
+	keyword *Token
+}
+
 func MakeAssignExpr(name *Token, value Expr) *AssignExpr {
 	return &AssignExpr{name: name, value: value}
 }
@@ -201,6 +209,14 @@ func MakeReturnStmt(keyword *Token, value Expr) *ReturnStmt {
 	return &ReturnStmt{keyword: keyword, value: value}
 }
 
+func MakeContinueStmt(keyword *Token) *ContinueStmt {
+	return &ContinueStmt{keyword: keyword}
+}
+
+func MakeBreakStmt(keyword *Token) *BreakStmt {
+	return &BreakStmt{keyword: keyword}
+}
+
 func (expr *AssignExpr) accept(v ExprVisitor) Any {
 	return v.visitAssignExpr(expr)
 }
@@ -287,4 +303,12 @@ func (expr *ForStmt) accept(v StmtVisitor) Any {
 
 func (expr *ReturnStmt) accept(v StmtVisitor) Any {
 	return v.visitReturnStmt(expr)
+}
+
+func (expr *ContinueStmt) accept(v StmtVisitor) Any {
+	return v.visitContinueStmt(expr)
+}
+
+func (expr *BreakStmt) accept(v StmtVisitor) Any {
+	return v.visitBreakStmt(expr)
 }

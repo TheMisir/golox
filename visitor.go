@@ -36,4 +36,6 @@ type StmtVisitor interface {
 	visitReturnStmt(stmt *ReturnStmt) Any
 	visitClassStmt(stmt *ClassStmt) Any
 	visitForStmt(stmt *ForStmt) Any
+	visitContinueStmt(stmt *ContinueStmt) Any
+	visitBreakStmt(stmt *BreakStmt) Any
 }

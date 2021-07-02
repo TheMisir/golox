@@ -2,16 +2,24 @@ package main
 
 type FunctionType string
 type ClassType string
+type LoopType string
 
 const (
+	// function types
 	FUNCTION_NONE        FunctionType = "NONE"
 	FUNCTION_FUNCTION    FunctionType = "FUNCTION"
 	FUNCTION_INITIALIZER FunctionType = "INITIALIZER"
 	FUNCTION_METHOD      FunctionType = "METHOD"
 
+	// class types
 	CLASS_NONE     ClassType = "NONE"
 	CLASS_CLASS    ClassType = "CLASS"
 	CLASS_SUBCLASS ClassType = "SUBCLASS"
+
+	// loop types
+	LOOP_NONE  LoopType = "NONE"
+	LOOP_FOR   LoopType = "FOR"
+	LOOP_WHILE LoopType = "WHILE"
 )
 
 type Resolver struct {
@@ -20,6 +28,7 @@ type Resolver struct {
 	scopes          *ResolverStack
 	currentFunction FunctionType
 	currentClass    ClassType
+	currentLoop     LoopType
 }
 
 func MakeResolver(context *LoxContext, interpreter *Interpreter) *Resolver {
@@ -29,6 +38,7 @@ func MakeResolver(context *LoxContext, interpreter *Interpreter) *Resolver {
 		scopes:          &ResolverStack{},
 		currentFunction: FUNCTION_NONE,
 		currentClass:    CLASS_NONE,
+		currentLoop:     LOOP_NONE,
 	}
 }
 
@@ -169,7 +179,7 @@ func (r *Resolver) visitReturnStmt(stmt *ReturnStmt) Any {
 
 func (r *Resolver) visitWhileStmt(stmt *WhileStmt) Any {
 	r.resolveExpr(stmt.condition)
-	r.resolveStmt(stmt.body)
+	r.resolveLoopBody(LOOP_WHILE, stmt.body)
 	return nil
 }
 
@@ -183,7 +193,15 @@ func (r *Resolver) visitForStmt(stmt *ForStmt) Any {
 	if stmt.increment != nil {
 		r.resolveExpr(stmt.increment)
 	}
+	r.resolveLoopBody(LOOP_FOR, stmt.body)
 	return nil
+}
+
+func (r *Resolver) resolveLoopBody(loopType LoopType, stmt Stmt) {
+	enclosingLoop := r.currentLoop
+	r.currentLoop = loopType
+	r.resolveStmt(stmt)
+	r.currentLoop = enclosingLoop
 }
 
 func (r *Resolver) visitBinaryExpr(expr *BinaryExpr) Any {
@@ -300,5 +318,19 @@ func (r *Resolver) visitSuperExpr(expr *SuperExpr) Any {
 	}
 
 	r.resolveLocal(expr, expr.keyword)
+	return nil
+}
+
+func (r *Resolver) visitContinueStmt(stmt *ContinueStmt) Any {
+	if r.currentLoop == LOOP_NONE {
+		r.context.tokenError(stmt.keyword, "Can't use 'continue' outside of a loop.")
+	}
+	return nil
+}
+
+func (r *Resolver) visitBreakStmt(stmt *BreakStmt) Any {
+	if r.currentLoop == LOOP_NONE {
+		r.context.tokenError(stmt.keyword, "Can't use 'break' outside of a loop.")
+	}
 	return nil
 }

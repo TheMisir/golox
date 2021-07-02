@@ -397,7 +397,27 @@ func (p *Parser) statement() Stmt {
 		return p.forStatement()
 	}
 
+	if p.match(CONTINUE) {
+		return p.continueStatement()
+	}
+
+	if p.match(BREAK) {
+		return p.breakStatement()
+	}
+
 	return p.expressionStatement()
+}
+
+func (p *Parser) continueStatement() Stmt {
+	keyword := p.previous()
+	p.consume(SEMICOLON, "Expect ';' after 'continue'.")
+	return MakeContinueStmt(keyword)
+}
+
+func (p *Parser) breakStatement() Stmt {
+	keyword := p.previous()
+	p.consume(SEMICOLON, "Expect ';' after 'break'.")
+	return MakeBreakStmt(keyword)
 }
 
 // "return" expression? ";" ;

@@ -169,3 +169,11 @@ func (p *AstPrinter) visitForStmt(stmt *ForStmt) Any {
 
 	return fmt.Sprintf("ForStmt(%s; %s; %s {%s})", initializer, condition, increment, p.printStmt(stmt.body))
 }
+
+func (p *AstPrinter) visitContinueStmt(stmt *ContinueStmt) Any {
+	return "ContinueStmt"
+}
+
+func (p *AstPrinter) visitBreakStmt(stmt *BreakStmt) Any {
+	return "BreakStmt"
+}

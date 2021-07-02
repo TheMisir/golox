@@ -2,9 +2,10 @@
 
 The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpreter written in Golang.
 
-## Additions
+## Improvements
 
-This branch adds a few features to the original Lox design.
+This branch adds a few "unoriginal" features to the original Lox 
+implementation.
 
 #### 1. Functions are now considered as statement
 
@@ -42,6 +43,29 @@ call(fun () {  // We don't have to provide a name for the function
 I also modified the resolver to detect some edge cases like declaring 
 nameless functions as a class method.
 
+### 3. Modified `for` statement handling
+
+With modified lox for statements are not de-sugarized into a while
+statement. This is done to allow for writing more complex loops and
+supporting `break` and `continue` statements.
+
+#### 4. Loop breaking and continuing
+
+Now you can use `break` and `continue` statements in loops - both while
+and for loops.
+
+
+Syntax is simple as below:
+
+```lox
+while (true) {
+  if (condition) {
+    break;
+  }
+}
+```
+
+
 ## Notes
 
 These are notes I took during reading the book that helped me to 
@@ -74,6 +98,8 @@ statement      → exprStmt
                | printStmt
                | returnStmt
                | whileStmt
+               | breakStmt
+               | continueStmt
                | block ;
 
 returnStmt     → "return" expression? ";" ;
@@ -109,7 +135,8 @@ call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 arguments      → expression ( "," expression )* ;
 primary        → "true" | "false" | "nil" | "this"
                | NUMBER | STRING | IDENTIFIER | "(" expression ")"
-               | "super" "." IDENTIFIER ;
+               | "super" "." IDENTIFIER
+               | funDecl ;
 ```
 
 And the body of the rule translates to code roughly like:

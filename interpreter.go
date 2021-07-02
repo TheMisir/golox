@@ -301,9 +301,37 @@ func (i *Interpreter) visitForStmt(stmt *ForStmt) Any {
 	return nil
 }
 
-func (i *Interpreter) loopBody(body Stmt) LoopBodyResult {
+type LoopJump struct {
+	jumpType LoopBodyResult
+}
+
+func (j LoopJump) String() string {
+	return j.jumpType
+}
+
+func (i *Interpreter) loopBody(body Stmt) (result LoopBodyResult) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch r := r.(type) {
+			case LoopJump:
+				result = r.jumpType
+				break
+			default:
+				panic(r)
+			}
+		}
+	}()
+
 	i.execute(body)
 	return LOOP_CONTINUE
+}
+
+func (i *Interpreter) visitBreakStmt(stmt *BreakStmt) Any {
+	panic(LoopJump{LOOP_BREAK})
+}
+
+func (i *Interpreter) visitContinueStmt(stmt *ContinueStmt) Any {
+	panic(LoopJump{LOOP_CONTINUE})
 }
 
 type LoxCallable interface {
@@ -419,21 +447,13 @@ type Return struct {
 	value Any
 }
 
-func MakeReturn(value Any) *Return {
-	return &Return{value: value}
-}
-
-func (r *Return) Error() string {
-	return "return statement"
-}
-
 func (i *Interpreter) visitReturnStmt(stmt *ReturnStmt) Any {
 	var value Any = nil
 	if stmt.value != nil {
 		value = i.evaluate(stmt.value)
 	}
 
-	panic(MakeReturn(value))
+	panic(&Return{value})
 }
 
 func (i *Interpreter) visitClassStmt(stmt *ClassStmt) Any {
