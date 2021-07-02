@@ -30,6 +30,7 @@ type Resolver struct {
 	currentFunction FunctionType
 	currentClass    ClassType
 	currentLoop     LoopType
+	includedFiles   map[string]bool
 }
 
 func MakeResolver(context *LoxContext, interpreter *Interpreter, sourceResolver SourceResolver) *Resolver {
@@ -41,6 +42,7 @@ func MakeResolver(context *LoxContext, interpreter *Interpreter, sourceResolver 
 		currentFunction: FUNCTION_NONE,
 		currentClass:    CLASS_NONE,
 		currentLoop:     LOOP_NONE,
+		includedFiles:   make(map[string]bool),
 	}
 }
 
@@ -52,7 +54,14 @@ func (r *Resolver) visitBlockStmt(stmt *BlockStmt) Any {
 }
 
 func (r *Resolver) visitIncludeStmt(stmt *IncludeStmt) Any {
-	source, err := r.sourceResolver.Resolve(r.context, stmt.path.literal.(string))
+	name := stmt.path.literal.(string)
+
+	if r.includedFiles[name] {
+		r.context.tokenError(stmt.path, "Can't include file more than once.")
+		return nil
+	}
+
+	source, err := r.sourceResolver.Resolve(r.context, name)
 	if err != nil {
 		r.context.tokenError(stmt.path, "Can't resolve include path.")
 		return nil
@@ -62,6 +71,7 @@ func (r *Resolver) visitIncludeStmt(stmt *IncludeStmt) Any {
 		return nil
 	}
 
+	r.includedFiles[name] = true
 	r.interpreter.include(stmt, source)
 
 	r.beginScope()

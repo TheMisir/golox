@@ -15,15 +15,16 @@ func MakeContext() *LoxContext {
 	}
 }
 
-func (c *LoxContext) error(line int, message string, a ...interface{}) {
-	c.report(line, "", message, a...)
+func (c *LoxContext) error(position string, message string, a ...interface{}) {
+	c.report(position, "", message, a...)
 }
 
 func (c *LoxContext) tokenError(token *Token, message string, a ...interface{}) {
+	position := fmt.Sprintf("%s:%v", token.source.Name, token.line)
 	if token.tokenType == EOF {
-		c.report(token.line, " at end", message, a...)
+		c.report(position, " at end", message, a...)
 	} else {
-		c.report(token.line, fmt.Sprintf(" at '%s'", token.lexme), message, a...)
+		c.report(position, fmt.Sprintf(" at '%s'", token.lexme), message, a...)
 	}
 }
 
@@ -32,10 +33,10 @@ func (c *LoxContext) runtimeError(token *Token, message string, a ...interface{}
 	panic(MakeRuntimeError(token, message, a...))
 }
 
-func (c *LoxContext) report(line int, where string, message string, a ...interface{}) {
+func (c *LoxContext) report(position string, where string, message string, a ...interface{}) {
 	c.hadError = true
 	message = fmt.Sprintf(message, a...)
-	fmt.Fprintf(os.Stderr, "[line %v] Error%s: %s\n", line, where, message)
+	fmt.Fprintf(os.Stderr, "[%s] Error%s: %s\n", position, where, message)
 }
 
 type RuntimeError struct {

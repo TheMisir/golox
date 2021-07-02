@@ -3,19 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
-
-func runFromFile(name string) {
-	data, err := ioutil.ReadFile(name)
-	if err != nil {
-		panic(err)
-	}
-
-	source := string(data)
-	run(source)
-}
 
 func runFromStdin() {
 	ctx := MakeContext()
@@ -26,7 +15,8 @@ func runFromStdin() {
 		ctx.hadError = false
 		line := stdin.Text()
 
-		scanner := MakeScanner(ctx, line)
+		source := &Source{Name: "<stdin>", Code: line}
+		scanner := MakeScanner(ctx, source)
 		tokens := scanner.scanTokens()
 		if ctx.hadError {
 			continue
@@ -59,33 +49,30 @@ func runFromStdin() {
 	}
 }
 
-func run(source string) {
+func runFromFile(name string) {
 	ctx := MakeContext()
 	interpreter := MakeInterpreter(ctx)
+	sourceResolver := MakeFileSourceResolver("")
 
-	scanner := MakeScanner(ctx, source)
-	scanner.scanTokens()
-	if ctx.hadError {
-		os.Exit(65)
+	source, err := sourceResolver.Resolve(ctx, name)
+	if err != nil {
+		panic(err)
 	}
 
-	parser := MakeParser(ctx, scanner.tokens)
-	statements, _ := parser.parse()
 	if ctx.hadError {
 		println("AST:")
-		println(treePrinter.print(statements))
+		println(treePrinter.print(source.Body))
 
 		os.Exit(65)
 	}
 
-	sourceResolver := MakeFileSourceResolver("")
 	resolver := MakeResolver(ctx, interpreter, sourceResolver)
-	resolver.resolve(statements)
+	resolver.resolve(source.Body)
 	if ctx.hadError {
 		os.Exit(65)
 	}
 
-	interpreter.interpret(statements)
+	interpreter.interpret(source.Body)
 }
 
 func main() {

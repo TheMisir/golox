@@ -33,7 +33,7 @@ func (r *FileSourceResolver) Resolve(context *LoxContext, name string) (*Source,
 	source := &Source{Name: name}
 	source.Code = string(contents)
 
-	scanner := MakeScanner(context, source.Code)
+	scanner := MakeScanner(context, source)
 	tokens := scanner.scanTokens()
 
 	if context.hadError {

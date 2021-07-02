@@ -101,25 +101,26 @@ func (t *Token) String() string {
 	}
 }
 
-func MakeToken(tokenType TokenType, lexme string, literal interface{}, line int) *Token {
+func MakeToken(tokenType TokenType, lexme string, literal interface{}, line int, source *Source) *Token {
 	return &Token{
 		tokenType: tokenType,
 		lexme:     lexme,
 		line:      line,
 		literal:   literal,
+		source:    source,
 	}
 }
 
 type Scanner struct {
 	context *LoxContext
-	source  string
+	source  *Source
 	tokens  []*Token
 	start   int
 	current int
 	line    int
 }
 
-func MakeScanner(context *LoxContext, source string) *Scanner {
+func MakeScanner(context *LoxContext, source *Source) *Scanner {
 	return &Scanner{
 		context: context,
 		source:  source,
@@ -136,12 +137,12 @@ func (s *Scanner) scanTokens() []*Token {
 		s.scanToken()
 	}
 
-	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line))
+	s.tokens = append(s.tokens, MakeToken(EOF, "", nil, s.line, s.source))
 	return s.tokens
 }
 
 func (s *Scanner) isAtEnd() bool {
-	return s.current >= len(s.source)
+	return s.current >= len(s.source.Code)
 }
 
 func (s *Scanner) scanToken() {
@@ -249,14 +250,14 @@ func (s *Scanner) scanToken() {
 		} else if isAlpha(c) {
 			s.identifier()
 		} else {
-			s.context.error(s.line, "Unexpected character '%s'.", string(c))
+			s.context.error(fmt.Sprintf("%s:%v", s.source.Name, s.line), "Unexpected character '%s'.", string(c))
 		}
 		break
 	}
 }
 
 func (s *Scanner) advance() byte {
-	c := s.source[s.current]
+	c := s.source.Code[s.current]
 	s.current++
 	return c
 }
@@ -266,15 +267,15 @@ func (s *Scanner) addToken(tokenType TokenType) {
 }
 
 func (s *Scanner) addLiteralToken(tokenType TokenType, literal interface{}) {
-	text := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.line))
+	text := s.source.Code[s.start:s.current]
+	s.tokens = append(s.tokens, MakeToken(tokenType, text, literal, s.line, s.source))
 }
 
 func (s *Scanner) match(expected byte) bool {
 	if s.isAtEnd() {
 		return false
 	}
-	if s.source[s.current] != expected {
+	if s.source.Code[s.current] != expected {
 		return false
 	}
 	s.current++
@@ -285,14 +286,14 @@ func (s *Scanner) peek() byte {
 	if s.isAtEnd() {
 		return 0
 	}
-	return s.source[s.current]
+	return s.source.Code[s.current]
 }
 
 func (s *Scanner) peekNext() byte {
-	if s.current+1 >= len(s.source) {
+	if s.current+1 >= len(s.source.Code) {
 		return 0
 	}
-	return s.source[s.current+1]
+	return s.source.Code[s.current+1]
 }
 
 func (s *Scanner) string() {
@@ -304,13 +305,13 @@ func (s *Scanner) string() {
 	}
 
 	if s.isAtEnd() {
-		s.context.error(s.line, "Unterminated string.")
+		s.context.error(fmt.Sprintf("%s:%v", s.source.Name, s.line), "Unterminated string.")
 		return
 	}
 
 	s.advance()
 
-	value := s.source[s.start+1 : s.current-1]
+	value := s.source.Code[s.start+1 : s.current-1]
 	s.addLiteralToken(STRING, value)
 }
 
@@ -330,10 +331,10 @@ func (s *Scanner) number() {
 		}
 	}
 
-	seq := s.source[s.start:s.current]
+	seq := s.source.Code[s.start:s.current]
 	value, err := strconv.ParseFloat(seq, 64)
 	if err != nil {
-		s.context.error(s.line, "Failed to convert '%s' sequence to number.", seq)
+		s.context.error(fmt.Sprintf("%s:%v", s.source.Name, s.line), "Failed to convert '%s' sequence to number.", seq)
 	} else {
 		s.addLiteralToken(NUMBER, value)
 	}
@@ -352,7 +353,7 @@ func (s *Scanner) identifier() {
 		s.advance()
 	}
 
-	text := s.source[s.start:s.current]
+	text := s.source.Code[s.start:s.current]
 	tokenType := IDENTIFIER
 
 	if val, ok := keywords[text]; ok {
