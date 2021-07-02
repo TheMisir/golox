@@ -23,7 +23,9 @@ make build
 This branch adds a few "unoriginal" features to the original Lox 
 implementation.
 
-#### 1. Functions are now considered as statement
+
+
+#### Functions are now considered as statement
 
 Unlike original Lox which considered function definitions as statements,
 this branch considers function definitions as a expression that resolves
@@ -40,7 +42,7 @@ call(fun greet() {  // Here we can directly declare a function as a value
 });
 ```
 
-#### 2. Nameless functions
+#### Nameless functions
 
 This is not a huge thing, but it is a nice feature that allows to write
 functions without name which could be used as lambdas for calling another
@@ -59,13 +61,13 @@ call(fun () {  // We don't have to provide a name for the function
 I also modified the resolver to detect some edge cases like declaring 
 nameless functions as a class method.
 
-#### 3. Modified `for` statement handling
+#### Modified `for` statement handling
 
 With modified lox for statements are not de-sugarized into a while
 statement. This is done to allow for writing more complex loops and
 supporting `break` and `continue` statements.
 
-#### 4. Loop breaking and continuing
+#### Loop breaking and continuing
 
 Now you can use `break` and `continue` statements in loops - both while
 and for loops.
@@ -81,7 +83,7 @@ while (true) {
 }
 ```
 
-#### 5. Including files
+#### Including files
 
 Lox now supports including files. This is useful for writing libraries
 that can be used in other projects.
@@ -101,6 +103,17 @@ if (isWindows) {
   include "lib/unix.lox";
 }
 ```
+
+#### What's Next?
+
+I'm planning to add more features to the language and to the interpreter.
+Here is a list of things I want to add:
+
+ - [ ] Support for `namespace` blocks
+ - [ ] Array literals
+ - [ ] Map literals, _maybe_
+ - [ ] Add more operations to standard library
+ - [ ] ~~Foreign function calls to dynamic libraries~~
 
 ## Notes
 
