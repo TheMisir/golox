@@ -26,16 +26,18 @@ type Resolver struct {
 	context         *LoxContext
 	interpreter     *Interpreter
 	scopes          *ResolverStack
+	sourceResolver  SourceResolver
 	currentFunction FunctionType
 	currentClass    ClassType
 	currentLoop     LoopType
 }
 
-func MakeResolver(context *LoxContext, interpreter *Interpreter) *Resolver {
+func MakeResolver(context *LoxContext, interpreter *Interpreter, sourceResolver SourceResolver) *Resolver {
 	return &Resolver{
 		context:         context,
 		interpreter:     interpreter,
 		scopes:          &ResolverStack{},
+		sourceResolver:  sourceResolver,
 		currentFunction: FUNCTION_NONE,
 		currentClass:    CLASS_NONE,
 		currentLoop:     LOOP_NONE,
@@ -46,6 +48,26 @@ func (r *Resolver) visitBlockStmt(stmt *BlockStmt) Any {
 	r.beginScope()
 	r.resolve(stmt.statements)
 	r.endScope()
+	return nil
+}
+
+func (r *Resolver) visitIncludeStmt(stmt *IncludeStmt) Any {
+	source, err := r.sourceResolver.Resolve(r.context, stmt.path.literal.(string))
+	if err != nil {
+		r.context.tokenError(stmt.path, "Can't resolve include path.")
+		return nil
+	}
+
+	if r.context.hadError {
+		return nil
+	}
+
+	r.interpreter.include(stmt, source)
+
+	r.beginScope()
+	r.resolve(source.Body)
+	r.endScope()
+
 	return nil
 }
 

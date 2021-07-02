@@ -55,6 +55,7 @@ const (
 	WHILE    TokenType = "WHILE"
 	CONTINUE TokenType = "CONTINUE"
 	BREAK    TokenType = "BREAK"
+	INCLUDE  TokenType = "INCLUDE"
 
 	EOF TokenType = "EOF"
 )
@@ -78,6 +79,7 @@ var keywords = map[string]TokenType{
 	"while":    WHILE,
 	"continue": CONTINUE,
 	"break":    BREAK,
+	"include":  INCLUDE,
 }
 
 type Token struct {
@@ -85,6 +87,7 @@ type Token struct {
 	lexme     string
 	line      int
 	literal   interface{}
+	source    *Source
 }
 
 func (t *Token) String() string {

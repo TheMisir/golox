@@ -171,3 +171,7 @@ func (p *AstPrinter) visitContinueStmt(stmt *ContinueStmt) Any {
 func (p *AstPrinter) visitBreakStmt(stmt *BreakStmt) Any {
 	return "Break"
 }
+
+func (p *AstPrinter) visitIncludeStmt(stmt *IncludeStmt) Any {
+	return fmt.Sprintf("Include(%s)", p.print(stmt.path))
+}

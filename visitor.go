@@ -38,4 +38,5 @@ type StmtVisitor interface {
 	visitForStmt(stmt *ForStmt) Any
 	visitContinueStmt(stmt *ContinueStmt) Any
 	visitBreakStmt(stmt *BreakStmt) Any
+	visitIncludeStmt(stmt *IncludeStmt) Any
 }

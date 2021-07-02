@@ -121,6 +121,11 @@ type BreakStmt struct {
 	keyword *Token
 }
 
+type IncludeStmt struct {
+	keyword *Token
+	path    *Token
+}
+
 func MakeAssignExpr(name *Token, value Expr) *AssignExpr {
 	return &AssignExpr{name: name, value: value}
 }
@@ -217,6 +222,10 @@ func MakeBreakStmt(keyword *Token) *BreakStmt {
 	return &BreakStmt{keyword: keyword}
 }
 
+func MakeIncludeStmt(keyword *Token, path *Token) *IncludeStmt {
+	return &IncludeStmt{keyword: keyword, path: path}
+}
+
 func (expr *AssignExpr) accept(v ExprVisitor) Any {
 	return v.visitAssignExpr(expr)
 }
@@ -311,4 +320,8 @@ func (expr *ContinueStmt) accept(v StmtVisitor) Any {
 
 func (expr *BreakStmt) accept(v StmtVisitor) Any {
 	return v.visitBreakStmt(expr)
+}
+
+func (expr *IncludeStmt) accept(v StmtVisitor) Any {
+	return v.visitIncludeStmt(expr)
 }

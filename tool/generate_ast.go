@@ -35,6 +35,7 @@ func main() {
 		"ReturnStmt:     keyword *Token, value Expr",
 		"ContinueStmt:   keyword *Token",
 		"BreakStmt:      keyword *Token",
+		"IncludeStmt:    keyword *Token, path *Token",
 	}
 
 	defs := "package main\n\n"

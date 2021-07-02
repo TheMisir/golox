@@ -17,6 +17,7 @@ type Interpreter struct {
 	environment *Environment
 	globals     *Environment
 	locals      map[Expr]int
+	includes    map[Stmt]*Source
 }
 
 func MakeInterpreter(context *LoxContext) *Interpreter {
@@ -29,11 +30,16 @@ func MakeInterpreter(context *LoxContext) *Interpreter {
 		environment: globals,
 		globals:     globals,
 		locals:      make(map[Expr]int),
+		includes:    make(map[Stmt]*Source),
 	}
 }
 
 func (i *Interpreter) resolve(expr Expr, depth int) {
 	i.locals[expr] = depth
+}
+
+func (i *Interpreter) include(stmt Stmt, source *Source) {
+	i.includes[stmt] = source
 }
 
 func (i *Interpreter) evaluate(expr Expr) Any {
@@ -224,6 +230,12 @@ func (i *Interpreter) visitVarStmt(stmt *VarStmt) Any {
 
 func (i *Interpreter) visitBlockStmt(stmt *BlockStmt) Any {
 	i.executeBlock(stmt.statements, i.environment.extend())
+	return nil
+}
+
+func (i *Interpreter) visitIncludeStmt(stmt *IncludeStmt) Any {
+	source := i.includes[stmt]
+	i.executeBlock(source.Body, i.environment)
 	return nil
 }
 

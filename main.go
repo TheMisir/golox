@@ -38,7 +38,8 @@ func runFromStdin() {
 			continue
 		}
 
-		resolver := MakeResolver(ctx, interpreter)
+		sourceResolver := MakeFileSourceResolver("")
+		resolver := MakeResolver(ctx, interpreter, sourceResolver)
 		resolver.resolve(statements)
 		if ctx.hadError {
 			continue
@@ -70,14 +71,15 @@ func run(source string) {
 
 	parser := MakeParser(ctx, scanner.tokens)
 	statements, _ := parser.parse()
-	if !ctx.hadError {
+	if ctx.hadError {
 		println("AST:")
 		println(treePrinter.print(statements))
 
 		os.Exit(65)
 	}
 
-	resolver := MakeResolver(ctx, interpreter)
+	sourceResolver := MakeFileSourceResolver("")
+	resolver := MakeResolver(ctx, interpreter, sourceResolver)
 	resolver.resolve(statements)
 	if ctx.hadError {
 		os.Exit(65)

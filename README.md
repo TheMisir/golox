@@ -116,7 +116,10 @@ statement      → exprStmt
                | whileStmt
                | breakStmt
                | continueStmt
+               | includeStmt
                | block ;
+
+includeStmt    → "include" STRING ";" ;
 
 returnStmt     → "return" expression? ";" ;
 

@@ -405,7 +405,18 @@ func (p *Parser) statement() Stmt {
 		return p.breakStatement()
 	}
 
+	if p.match(INCLUDE) {
+		return p.includeStatement()
+	}
+
 	return p.expressionStatement()
+}
+
+func (p *Parser) includeStatement() Stmt {
+	keyword := p.previous()
+	path := p.consume(STRING, "Expect file name.")
+	p.consume(SEMICOLON, "Expect ';' after include.")
+	return MakeIncludeStmt(keyword, path)
 }
 
 func (p *Parser) continueStatement() Stmt {
