@@ -81,6 +81,26 @@ while (true) {
 }
 ```
 
+#### 5. Including files
+
+Lox now supports including files. This is useful for writing libraries
+that can be used in other projects.
+
+```lox
+include "lib/math.lox";
+```
+
+Include statement can be chained with other statements like `if` statement.
+That's useful when you want to include files only when some condition is 
+met.
+
+```lox
+if (isWindows) {
+  include "lib/windows.lox";
+} else {
+  include "lib/unix.lox";
+}
+```
 
 ## Notes
 
