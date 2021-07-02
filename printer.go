@@ -110,7 +110,12 @@ func (p *AstPrinter) visitFunctionExpr(expr *FunctionExpr) Any {
 		body[index] = p.printStmt(element)
 	}
 
-	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", expr.name.lexme, strings.Join(params, ", "), strings.Join(body, "; "))
+	name := ""
+	if expr.name != nil {
+		name = expr.name.lexme
+	}
+
+	return fmt.Sprintf("FunctionStmt(%s(%s) {%s})", name, strings.Join(params, ", "), strings.Join(body, "; "))
 }
 
 func (p *AstPrinter) visitReturnStmt(stmt *ReturnStmt) Any {

@@ -21,7 +21,7 @@ func main() {
 		"ThisExpr:     keyword *Token",
 		"UnaryExpr:    operator *Token, right Expr",
 		"VariableExpr: name *Token",
-		"FunctionExpr: name *Token, params []*Token, body []Stmt",
+		"FunctionExpr: name *Token, paren *Token, params []*Token, body []Stmt",
 
 		// Statements
 		"BlockStmt:      statements []Stmt",

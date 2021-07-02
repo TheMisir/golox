@@ -114,11 +114,13 @@ func (r *Resolver) visitAssignExpr(expr *AssignExpr) Any {
 	return nil
 }
 
-func (r *Resolver) visitFunctionExpr(stmt *FunctionExpr) Any {
-	r.declare(stmt.name)
-	r.define(stmt.name)
+func (r *Resolver) visitFunctionExpr(expr *FunctionExpr) Any {
+	if expr.name != nil {
+		r.declare(expr.name)
+		r.define(expr.name)
+	}
 
-	r.resolveFunction(stmt, FUNCTION_FUNCTION)
+	r.resolveFunction(expr, FUNCTION_FUNCTION)
 	return nil
 }
 
@@ -236,7 +238,10 @@ func (r *Resolver) visitClassStmt(stmt *ClassStmt) Any {
 
 	for _, method := range stmt.methods {
 		declaration := FUNCTION_METHOD
-		if method.name.lexme == "init" {
+
+		if method.name == nil {
+			r.context.tokenError(method.paren, "Method must have a name.")
+		} else if method.name.lexme == "init" {
 			declaration = FUNCTION_INITIALIZER
 		}
 

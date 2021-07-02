@@ -364,9 +364,12 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []Any) (result An
 	return nil
 }
 
-func (i *Interpreter) visitFunctionExpr(stmt *FunctionExpr) Any {
-	function := MakeLoxFunction(stmt, i.environment, false)
-	i.environment.define(stmt.name.lexme, function)
+func (i *Interpreter) visitFunctionExpr(expr *FunctionExpr) Any {
+	function := MakeLoxFunction(expr, i.environment, false)
+	if expr.name != nil {
+		i.environment.define(expr.name.lexme, function)
+	}
+
 	return function
 }
 

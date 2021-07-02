@@ -2,6 +2,46 @@
 
 The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpreter written in Golang.
 
+## Additions
+
+This branch adds a few features to the original Lox design.
+
+#### 1. Functions are now considered as statement
+
+Unlike original Lox which considered function definitions as statements,
+this branch considers function definitions as a expression that resolves
+to function itself (instance of LoxFunction in runtime). This allows
+directly providing function as a value to another function.
+
+```lox
+fun call(callback) {
+  return callback();
+}
+
+call(fun greet() {  // Here we can directly declare a function as a value
+  return "Hello";
+});
+```
+
+#### 2. Nameless functions
+
+This is not a huge thing, but it is a nice feature that allows to write
+functions without name which could be used as lambdas for calling another
+functions. For example we can write previous code like that:
+
+```lox
+fun call(callback) {
+  return callback();
+}
+
+call(fun () {  // We don't have to provide a name for the function
+  return "Hello";
+});
+```
+
+I also modified the resolver to detect some edge cases like declaring 
+nameless functions as a class method.
+
 ## Notes
 
 These are notes I took during reading the book that helped me to 

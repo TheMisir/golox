@@ -296,6 +296,9 @@ func (p *Parser) declaration() (result Stmt) {
 			result = p.varDeclaration()
 		} else if p.match(CLASS) {
 			result = p.classDeclaration()
+		} else if p.match(FUN) {
+			function := p.function("function")
+			result = MakeExpressionStmt(function)
 		} else {
 			result = p.statement()
 		}
@@ -328,8 +331,12 @@ func (p *Parser) classDeclaration() Stmt {
 }
 
 func (p *Parser) function(kind string) *FunctionExpr {
-	identifier := p.consume(IDENTIFIER, "Expect %s name.", kind)
-	p.consume(LEFT_PAREN, "Expect '(' after %s name.", kind)
+	var identifier *Token
+	if p.match(IDENTIFIER) {
+		identifier = p.previous()
+	}
+
+	paren := p.consume(LEFT_PAREN, "Expect '(' after %s name.", kind)
 	parameters := make([]*Token, 0)
 
 	if !p.check(RIGHT_PAREN) {
@@ -350,7 +357,7 @@ func (p *Parser) function(kind string) *FunctionExpr {
 
 	p.consume(LEFT_BRACE, "Expect '{' before %s body.", kind)
 	body := p.block()
-	return MakeFunctionExpr(identifier, parameters, body)
+	return MakeFunctionExpr(identifier, paren, parameters, body)
 }
 
 func (p *Parser) varDeclaration() Stmt {
@@ -495,14 +502,9 @@ func (p *Parser) printStatement() Stmt {
 }
 
 func (p *Parser) expressionStatement() Stmt {
-	next := p.peek()
 	expr := p.expression()
 
-	if next.tokenType != FUN {
-		p.consume(SEMICOLON, "Expect ';' after expression.")
-	} else {
-		p.match(SEMICOLON) // Skip the semicolon.
-	}
+	p.consume(SEMICOLON, "Expect ';' after expression.")
 
 	return MakeExpressionStmt(expr)
 }

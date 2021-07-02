@@ -62,6 +62,7 @@ type VariableExpr struct {
 
 type FunctionExpr struct {
 	name   *Token
+	paren  *Token
 	params []*Token
 	body   []Stmt
 }
@@ -153,8 +154,8 @@ func MakeVariableExpr(name *Token) *VariableExpr {
 	return &VariableExpr{name: name}
 }
 
-func MakeFunctionExpr(name *Token, params []*Token, body []Stmt) *FunctionExpr {
-	return &FunctionExpr{name: name, params: params, body: body}
+func MakeFunctionExpr(name *Token, paren *Token, params []*Token, body []Stmt) *FunctionExpr {
+	return &FunctionExpr{name: name, paren: paren, params: params, body: body}
 }
 
 func MakeBlockStmt(statements []Stmt) *BlockStmt {
