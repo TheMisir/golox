@@ -43,7 +43,7 @@ call(fun () {  // We don't have to provide a name for the function
 I also modified the resolver to detect some edge cases like declaring 
 nameless functions as a class method.
 
-### 3. Modified `for` statement handling
+#### 3. Modified `for` statement handling
 
 With modified lox for statements are not de-sugarized into a while
 statement. This is done to allow for writing more complex loops and
