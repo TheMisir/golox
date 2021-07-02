@@ -2,6 +2,26 @@
 
 The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpreter written in Golang.
 
+---
+
+Check [improved](https://github.com/TheMisir/golox/tree/improved) branch 
+for an improved version of the interpreter.
+
+## Build
+
+If you have [Go](https://golang.org) installed, you can build the 
+project with:
+
+```sh
+go build .
+```
+
+Or you can use make to build the project:
+
+```sh
+make build
+```
+
 ## Notes
 
 These are notes I took during reading the book that helped me to 
