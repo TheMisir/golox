@@ -2,6 +2,22 @@
 
 The [lox language](https://craftinginterpreters.com/the-lox-language.html) interpreter written in Golang.
 
+## Build
+
+If you have [Go](https://golang.org) installed, you can build the 
+project with:
+
+```sh
+go build .
+```
+
+Or you can use make to build the project:
+
+```sh
+make build
+```
+
+
 ## Improvements
 
 This branch adds a few "unoriginal" features to the original Lox 
