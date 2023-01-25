@@ -25,7 +25,7 @@ implementation.
 
 
 
-#### Functions are now considered as statement
+#### Functions are now considered as expressions
 
 Unlike original Lox which considered function definitions as statements,
 this branch considers function definitions as a expression that resolves
@@ -42,7 +42,7 @@ call(fun greet() {  // Here we can directly declare a function as a value
 });
 ```
 
-#### Nameless functions
+#### Anonymous functions
 
 This is not a huge thing, but it is a nice feature that allows to write
 functions without name which could be used as lambdas for calling another
